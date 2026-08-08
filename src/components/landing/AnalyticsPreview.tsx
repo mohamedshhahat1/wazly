@@ -1,0 +1,92 @@
+import { useEffect, useState } from 'react';
+import { useReveal, useCountUp, usePrefersReducedMotion } from '@/lib/hooks';
+import { analyticsData } from '@/lib/mockData';
+
+export function AnalyticsPreview() {
+  const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.2 });
+  const reduced = usePrefersReducedMotion();
+
+  const conversations = useCountUp(analyticsData.kpis.conversations.value, visible, 1800);
+  const aiResolution = useCountUp(analyticsData.kpis.aiResolution.value, visible, 1500);
+  const leads = useCountUp(analyticsData.kpis.leads.value, visible, 1400);
+  const responseTime = useCountUp(analyticsData.kpis.responseTime.value, visible, 1200);
+
+  const kpis = [
+    { value: Math.round(conversations), label: 'Conversations', suffix: '', format: (v: number) => v.toLocaleString() },
+    { value: Math.round(aiResolution), label: 'AI Resolution', suffix: '%', format: (v: number) => `${v}` },
+    { value: Math.round(leads), label: 'Leads', suffix: '', format: (v: number) => `${v}` },
+    { value: responseTime.toFixed(1), label: 'Avg Response', suffix: 's', format: (v: number) => v.toFixed(1) },
+  ];
+
+  const maxVal = Math.max(...analyticsData.daily.map(d => d.ai + d.human));
+
+  return (
+    <div ref={ref} className="w-full max-w-2xl mx-auto">
+      <div className="bg-app border border-app rounded-2xl shadow-xl p-6 space-y-5">
+        {/* KPIs */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {kpis.map((kpi, i) => (
+            <div
+              key={kpi.label}
+              className="bg-subtle border border-app rounded-xl p-3.5 transition-all duration-500"
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(12px)',
+                transitionDelay: `${i * 120}ms`,
+              }}
+            >
+              <div className="text-2xl font-bold text-main count-up tabular-nums">
+                {kpi.format(kpi.value as any)}{kpi.suffix}
+              </div>
+              <div className="text-xs text-muted mt-0.5">{kpi.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Chart */}
+        <div className="bg-subtle border border-app rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-sm font-medium text-main">Conversations</span>
+            <div className="flex items-center gap-3 text-xs">
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-brand-500" />
+                <span className="text-muted">AI</span>
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-accent-400" />
+                <span className="text-muted">Human</span>
+              </span>
+            </div>
+          </div>
+          <div className="flex items-end justify-between gap-2 h-32">
+            {analyticsData.daily.map((d, i) => {
+              const aiHeight = (d.ai / maxVal) * 100;
+              const humanHeight = (d.human / maxVal) * 100;
+              return (
+                <div key={d.day} className="flex-1 flex flex-col items-center gap-1.5">
+                  <div className="w-full flex items-end justify-center gap-0.5 h-full">
+                    <div
+                      className="w-3 rounded-t bg-brand-500 origin-bottom transition-all duration-700 ease-smooth"
+                      style={{
+                        height: visible ? `${aiHeight}%` : '0%',
+                        transitionDelay: `${i * 80 + 300}ms`,
+                      }}
+                    />
+                    <div
+                      className="w-3 rounded-t bg-accent-400 origin-bottom transition-all duration-700 ease-smooth"
+                      style={{
+                        height: visible ? `${humanHeight}%` : '0%',
+                        transitionDelay: `${i * 80 + 450}ms`,
+                      }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-subtle">{d.day}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
