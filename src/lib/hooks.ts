@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 
 /**
+ * Environment-agnostic timeout handle: resolves to `number` in the DOM lib and
+ * to `NodeJS.Timeout` when @types/node is present in node_modules/@types.
+ */
+type TimeoutId = ReturnType<typeof setTimeout>;
+
+/**
  * Intersection-based reveal trigger for scroll animations.
  * Returns a ref and whether the element has entered the viewport.
  */
@@ -88,7 +94,7 @@ export function useCountUp(target: number, active: boolean, duration = 1500) {
 export function useTypewriter(text: string, active: boolean, speed = 28) {
   const [displayed, setDisplayed] = useState('');
   const reduced = usePrefersReducedMotion();
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<TimeoutId | null>(null);
 
   useEffect(() => {
     if (!active) return;
@@ -106,7 +112,12 @@ export function useTypewriter(text: string, active: boolean, speed = 28) {
       }
     };
     timerRef.current = setTimeout(tick, speed);
-    return () => clearTimeout(timerRef.current);
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
   }, [text, active, speed, reduced]);
 
   return displayed;
@@ -114,7 +125,7 @@ export function useTypewriter(text: string, active: boolean, speed = 28) {
 
 /**
  * Sequenced timeline runner — steps through an array of steps with delays.
- * Returns the current step index and a "done" flag.
+ * Returns the index of the active step (-1 before the first step runs).
  */
 export function useTimeline(
   steps: { duration: number }[],
@@ -126,35 +137,26 @@ export function useTimeline(
 
   useEffect(() => {
     if (!active) return;
-    let timeouts: ReturnType<typeof setTimeout>[] = [];
-    let cumulative = startDelay;
 
     if (reduced) {
       setStep(steps.length - 1);
       return;
     }
 
+    const timeouts: TimeoutId[] = [];
+    let cumulative = startDelay;
+
     setStep(-1);
-    cumulative += 0;
 
     for (let i = 0; i < steps.length; i++) {
-      cumulative += steps[i].duration;
       const idx = i;
-      timeouts.push(
-        setTimeout(() => setStep(idx), cumulative - steps[i].duration)
-      );
+      timeouts.push(setTimeout(() => setStep(idx), cumulative));
+      cumulative += steps[i].duration;
     }
 
     if (loop) {
-      timeouts.push(
-        setTimeout(() => setStep(-1), cumulative + 1500)
-      );
-      // restart
-      timeouts.push(
-        setTimeout(() => {
-          // This triggers re-run via effect dependency on a counter
-        }, cumulative + 1600)
-      );
+      // Clear the sequence once it finishes so the caller can restart it.
+      timeouts.push(setTimeout(() => setStep(-1), cumulative + 1500));
     }
 
     return () => timeouts.forEach(clearTimeout);
@@ -180,7 +182,7 @@ export function useLoopingTimeline(
       setStep(steps.length - 1);
       return;
     }
-    let timeouts: ReturnType<typeof setTimeout>[] = [];
+    const timeouts: TimeoutId[] = [];
     let cumulative = startDelay;
 
     for (let i = 0; i < steps.length; i++) {
@@ -205,7 +207,7 @@ export function useLoopingTimeline(
 }
 
 /**
- * Interval that runs only when component is mounted and visible.
+ * Interval that runs only while `delay` is non-null.
  */
 export function useInterval(callback: () => void, delay: number | null) {
   const savedCallback = useRef(callback);
@@ -227,7 +229,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
   const [value, setValue] = useState<T>(() => {
     try {
       const stored = localStorage.getItem(key);
-      return stored ? JSON.parse(stored) : initial;
+      return stored ? (JSON.parse(stored) as T) : initial;
     } catch {
       return initial;
     }
@@ -237,7 +239,7 @@ export function useLocalStorage<T>(key: string, initial: T) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch {
-      // ignore
+      // ignore write failures (private mode, quota exceeded, …)
     }
   }, [key, value]);
 
@@ -256,12 +258,12 @@ export function usePrevious<T>(value: T) {
 }
 
 /**
- * Stable callback that doesn't change identity.
+ * Stable callback that keeps a constant identity across renders.
  */
-export function useStableCallback<T extends (...args: any[]) => any>(fn: T): T {
+export function useStableCallback<Args extends unknown[], R>(fn: (...args: Args) => R) {
   const ref = useRef(fn);
   useEffect(() => {
     ref.current = fn;
   }, [fn]);
-  return useCallback((...args: any[]) => ref.current(...args), []) as T;
+  return useCallback((...args: Args) => ref.current(...args), []);
 }
