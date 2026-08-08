@@ -56,6 +56,17 @@ function App() {
           {view === 'overview' && <Overview onViewChange={setView} />}
           {view === 'inbox' && <LiveInbox />}
           {view === 'customers' && <Customers />}
+          {view === 'leads' && (
+            <div className="p-6 space-y-4 max-w-3xl mx-auto">
+              <div>
+                <h2 className="text-xl font-bold text-main">Lead Qualification</h2>
+                <p className="text-sm text-muted mt-1">
+                  Watch your AI detect intent, score leads, and qualify them in real time.
+                </p>
+              </div>
+              <LeadQualification />
+            </div>
+          )}
           {view === 'ai' && <AIPlayground />}
           {view === 'knowledge' && <Knowledge />}
           {view === 'analytics' && <Analytics />}

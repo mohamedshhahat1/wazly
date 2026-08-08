@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import {
   Sparkles, Inbox, Users, Bot, BookOpen, BarChart3, Plug, CreditCard,
-  LayoutDashboard, ChevronDown, Sun, Moon, Bell, Search, Settings,
+  LayoutDashboard, ChevronDown, Sun, Moon, Bell, Search, Settings, Target,
   type LucideIcon,
 } from 'lucide-react';
 import { useTheme } from '@/lib/theme';
 import { StatusDot } from '@/components/ui';
 
-export type AppView = 'overview' | 'inbox' | 'customers' | 'ai' | 'knowledge' | 'analytics' | 'integrations' | 'team' | 'billing';
+export type AppView = 'overview' | 'inbox' | 'customers' | 'leads' | 'ai' | 'knowledge' | 'analytics' | 'integrations' | 'team' | 'billing';
 
 interface NavItem {
   id: AppView;
@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'inbox', label: 'Inbox', icon: Inbox, badge: 3 },
   { id: 'customers', label: 'Customers', icon: Users },
+  { id: 'leads', label: 'Lead Qualification', icon: Target },
   { id: 'ai', label: 'AI Assistant', icon: Bot },
   { id: 'knowledge', label: 'Knowledge', icon: BookOpen },
   { id: 'analytics', label: 'Analytics', icon: BarChart3 },
