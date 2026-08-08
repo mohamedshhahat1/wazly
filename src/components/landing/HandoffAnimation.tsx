@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
 import { Sparkles, User, ArrowDown } from 'lucide-react';
-import { useReveal, usePrefersReducedMotion } from '@/lib/hooks';
+import { useScrollProgress, usePrefersReducedMotion } from '@/lib/hooks';
+import { mapRange } from '@/lib/motion';
 import { useLang } from '@/lib/i18n';
-import { handoffScript } from '@/lib/mockData';
+import { handoffScript, operators } from '@/lib/mockData';
 import { Badge } from '@/components/ui';
 
 type ScriptLine = {
@@ -19,69 +19,73 @@ const lines = handoffScript as unknown as ScriptLine[];
 
 export function HandoffAnimation() {
   const { pick } = useLang();
-  const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.3 });
   const reduced = usePrefersReducedMotion();
-  const [step, setStep] = useState(-1);
-  const [cycle, setCycle] = useState(0);
+  const { ref, progress: raw } = useScrollProgress<HTMLDivElement>({ disabled: reduced });
 
-  useEffect(() => {
-    if (!visible) return;
-    if (reduced) {
-      setStep(lines.length - 1);
-      return;
-    }
+  // Reduced motion shows the resolved conversation; otherwise scroll advances it.
+  const p = reduced ? 1 : mapRange(raw, 0.15, 0.7, 0, 1);
+  const step = Math.min(lines.length - 1, Math.floor(p * (lines.length + 1)) - 1);
 
-    const timeouts: ReturnType<typeof setTimeout>[] = [];
-    let cumulative = 600;
+  // Derived from which line *types* have played. Comparing against copy would
+  // break the moment that copy gets translated.
+  let hasAi = false;
+  let handedOff = false;
+  let operatorActive = false;
+  for (let i = 0; i <= step; i++) {
+    const t = lines[i].type;
+    if (t === 'ai') hasAi = true;
+    if (t === 'status') handedOff = true;
+    if (t === 'operator') operatorActive = true;
+  }
 
-    setStep(-1);
-
-    for (let i = 0; i < lines.length; i++) {
-      const idx = i;
-      const s = lines[i];
-      timeouts.push(setTimeout(() => setStep(idx), cumulative));
-
-      if (s.type === 'customer') cumulative += 1800;
-      else if (s.type === 'ai') cumulative += 2000;
-      else if (s.type === 'status') cumulative += 1400;
-      else if (s.type === 'operator') cumulative += 2500;
-    }
-
-    timeouts.push(
-      setTimeout(() => {
-        setStep(-1);
-        setCycle(c => c + 1);
-      }, cumulative + 2000),
-    );
-
-    return () => timeouts.forEach(clearTimeout);
-  }, [visible, cycle, reduced]);
-
-  // Derived from which line types have played. The previous version compared
-  // against English status strings that no longer exist in the data.
-  const statusBadge = (s: number) => {
-    if (s < 0) return null;
-    let hasAi = false;
-    let hasHandoff = false;
-    let hasOperator = false;
-    for (let i = 0; i <= s; i++) {
-      const t = lines[i].type;
-      if (t === 'ai') hasAi = true;
-      if (t === 'status') hasHandoff = true;
-      if (t === 'operator') hasOperator = true;
-    }
-    if (hasOperator) return <Badge variant="success">{pick('موظف بيتابع', 'Human handling')}</Badge>;
-    if (hasHandoff) return <Badge variant="human">{pick('تحويل لموظف', 'Handoff')}</Badge>;
-    if (hasAi) return <Badge variant="ai">{pick('الـ AI بيتعامل', 'AI handling')}</Badge>;
-    return null;
-  };
+  const operator = operators[0];
+  const operatorLabel = `${pick(operator.name, operator.nameEn ?? operator.name)} — ${pick(
+    operator.role,
+    operator.roleEn ?? operator.role,
+  )}`;
 
   return (
     <div ref={ref} className="w-full max-w-md mx-auto">
       <div className="bg-app border border-app rounded-2xl shadow-medium overflow-hidden">
-        <div className="px-4 py-3 border-b border-app bg-subtle flex items-center justify-between gap-2">
+        {/* Ownership moves from AI to human here. The tint shifts with it. */}
+        <div
+          className="px-4 py-3 border-b border-app flex items-center justify-between gap-2 transition-colors duration-700 ease-smooth"
+          style={{
+            backgroundColor: handedOff
+              ? 'var(--bg-muted)'
+              : 'var(--bg-subtle)',
+          }}
+        >
           <span className="text-sm font-semibold text-main">{pick('المحادثة', 'Conversation')}</span>
-          <div className="min-h-[20px] transition-all duration-300">{statusBadge(step)}</div>
+
+          {/* Both badges share one grid cell, so the swap happens in place and
+              nothing reflows around it. */}
+          <div className="grid justify-items-end min-h-[22px]">
+            <div
+              className="col-start-1 row-start-1 transition-all duration-500 ease-smooth"
+              style={{
+                opacity: hasAi && !handedOff ? 1 : 0,
+                transform: handedOff ? 'translateY(-6px) scale(0.96)' : 'none',
+              }}
+            >
+              <Badge variant="ai">
+                <Sparkles className="w-3 h-3" />
+                AI
+              </Badge>
+            </div>
+            <div
+              className="col-start-1 row-start-1 transition-all duration-500 ease-smooth"
+              style={{
+                opacity: handedOff ? 1 : 0,
+                transform: handedOff ? 'none' : 'translateY(6px) scale(0.96)',
+              }}
+            >
+              <Badge variant="human">
+                <User className="w-3 h-3" />
+                {operatorLabel}
+              </Badge>
+            </div>
+          </div>
         </div>
 
         <div className="h-[380px] overflow-y-auto px-4 py-4 space-y-3 bg-subtle">
@@ -90,7 +94,7 @@ export function HandoffAnimation() {
               return (
                 <div
                   key={i}
-                  className={`flex flex-col items-center gap-1 py-2 transition-all duration-500 ${
+                  className={`flex flex-col items-center gap-1.5 py-2 transition-all duration-500 ${
                     step >= i ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
                   }`}
                 >
@@ -100,6 +104,13 @@ export function HandoffAnimation() {
                   <Badge variant="human" size="xs">
                     {pick(s.status ?? '', s.statusEn ?? s.status ?? '')}
                   </Badge>
+                  {/* The takeover itself, held back a beat behind the status */}
+                  <span
+                    className="text-[10px] text-subtle transition-opacity duration-500"
+                    style={{ opacity: operatorActive ? 1 : 0 }}
+                  >
+                    {pick('استلام بشري', 'Human takeover')}
+                  </span>
                 </div>
               );
             }
