@@ -123,7 +123,7 @@ const STAGES: Stage[] = [
       {
         id: 'e2',
         kind: 'event',
-        text: 'المحادشة تحتاج تدخل من فريق المبيعات',
+        text: 'المحادثة تحتاج تدخل من فريق المبيعات',
         textEn: 'This conversation needs the sales team',
         tone: 'alert',
       },
@@ -199,6 +199,7 @@ export function ScrollStory() {
 
   return (
     <section
+      id="how"
       ref={ref}
       className={reduced ? 'py-20' : 'h-[430vh] sm:h-[540vh]'}
       aria-label={pick('إزاي Wazly بيشتغل', 'How Wazly works')}
@@ -468,7 +469,7 @@ export function ScrollStory() {
                       {sources.map((src, i) => (
                         <span
                           key={src.id}
-                          className="text-[11px] px-2 py-0.5 rounded-md border border-app bg-app text-muted transition-all duration-400"
+                          className="text-[11px] px-2 py-0.5 rounded-md border border-app bg-app text-muted transition-all duration-300"
                           style={{
                             opacity: showLookup ? 1 : 0,
                             transform: showLookup ? 'none' : 'translateY(4px)',

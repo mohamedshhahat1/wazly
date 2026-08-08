@@ -85,8 +85,12 @@ export function useIsCompact(maxWidth = 640) {
  * - `sticky`: 0 the moment a tall container's top reaches the viewport top
  *   (i.e. sticky engages), 1 when its bottom reaches the viewport bottom
  *   (sticky releases). The correct measure for scroll-driven stories.
+ * - `exit`: 0 while the element's top is still at or below the viewport top,
+ *   1 once a full viewport height of it has scrolled past. Independent of the
+ *   element's own height, which is what a hero needs — measuring a hero with
+ *   `through` would give a different starting value at every window size.
  */
-export type ScrollMode = 'through' | 'sticky';
+export type ScrollMode = 'through' | 'sticky' | 'exit';
 
 function readProgress(el: HTMLElement, mode: ScrollMode): number {
   const rect = el.getBoundingClientRect();
@@ -97,6 +101,12 @@ function readProgress(el: HTMLElement, mode: ScrollMode): number {
     // Container shorter than the viewport: nothing to scrub through.
     if (travel <= 0) return rect.top <= 0 ? 1 : 0;
     const p = -rect.top / travel;
+    return p < 0 ? 0 : p > 1 ? 1 : p;
+  }
+
+  if (mode === 'exit') {
+    if (vh <= 0) return 0;
+    const p = -rect.top / vh;
     return p < 0 ? 0 : p > 1 ? 1 : p;
   }
 
