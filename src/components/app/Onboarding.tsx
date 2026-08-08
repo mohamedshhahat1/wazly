@@ -1,16 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Building2, MessageCircle, BookOpen, Sparkles, Users, Check,
   ArrowRight, ArrowLeft, CheckCircle2,
 } from 'lucide-react';
-import { Card, Button, Badge, ProgressBar, ChannelBadge } from '@/components/ui';
-import { usePrefersReducedMotion } from '@/lib/hooks';
-import { onboardingSteps, readinessItems } from '@/lib/mockData';
+import { Card, Button, Badge, ChannelBadge } from '@/components/ui';
+import { onboardingSteps, readinessItems, type ChannelType } from '@/lib/mockData';
 
 const stepIcons = [Building2, MessageCircle, BookOpen, Sparkles, Users, CheckCircle2];
 
+const channelOptions: { id: ChannelType; label: string }[] = [
+  { id: 'whatsapp', label: 'WhatsApp Business' },
+  { id: 'instagram', label: 'Instagram Direct' },
+  { id: 'messenger', label: 'Facebook Messenger' },
+  { id: 'comments', label: 'Facebook Comments' },
+];
+
 export function Onboarding({ onComplete }: { onComplete: () => void }) {
-  const reduced = usePrefersReducedMotion();
   const [step, setStep] = useState(0);
   const [completed, setCompleted] = useState<Set<number>>(new Set());
   const [businessName, setBusinessName] = useState('');
@@ -114,12 +119,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
           {step === 1 && (
             <StepContainer title="Connect your channels" desc="Choose which channels you want Wazly to handle.">
               <div className="space-y-2">
-                {[
-                  { id: 'whatsapp', label: 'WhatsApp Business' },
-                  { id: 'instagram', label: 'Instagram Direct' },
-                  { id: 'messenger', label: 'Facebook Messenger' },
-                  { id: 'comments', label: 'Facebook Comments' },
-                ].map(ch => {
+                {channelOptions.map(ch => {
                   const sel = selectedChannels.has(ch.id);
                   return (
                     <div
@@ -136,7 +136,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
                         sel ? 'border-brand-500 bg-brand-bg' : 'border-app hover:border-strong'
                       }`}
                     >
-                      <ChannelBadge channel={ch.id as any} size="md" />
+                      <ChannelBadge channel={ch.id} size="md" />
                       <span className="flex-1 text-sm font-medium text-main">{ch.label}</span>
                       {sel && <Check className="w-4 h-4 text-brand animate-scale-in" />}
                     </div>

@@ -1,6 +1,5 @@
-import { Users, Plus, MoreVertical, Mail, Clock } from 'lucide-react';
+import { Plus, MoreVertical, Mail, Clock } from 'lucide-react';
 import { Card, Badge, Button } from '@/components/ui';
-import { operators } from '@/lib/mockData';
 
 const teamStats = [
   { label: 'Total members', value: 4 },
@@ -31,7 +30,7 @@ export function Team() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {teamStats.map((stat, i) => (
+        {teamStats.map(stat => (
           <Card key={stat.label} className="p-4" hover>
             <div className="text-2xl font-bold text-main tabular-nums">{stat.value}</div>
             <div className="text-xs text-muted mt-0.5">{stat.label}</div>
