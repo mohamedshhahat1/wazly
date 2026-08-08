@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Search, Filter, Download, MoreVertical, TrendingUp, Target } from 'lucide-react';
+import { Download, MoreVertical, TrendingUp, Target } from 'lucide-react';
 import { Card, Badge, ChannelBadge, Button, ProgressBar } from '@/components/ui';
-import { channelMeta } from '@/lib/mockData';
 
 interface Lead {
   id: string;
@@ -67,7 +66,7 @@ export function Customers() {
           { label: 'Qualified', value: leads.filter(l => l.status === 'qualified').length, icon: TrendingUp, color: 'text-green-600' },
           { label: 'Converted', value: leads.filter(l => l.status === 'converted').length, icon: TrendingUp, color: 'text-brand' },
           { label: 'Avg Score', value: Math.round(leads.reduce((a, l) => a + l.score, 0) / leads.length), icon: Target, color: 'text-accent-600' },
-        ].map((kpi, i) => {
+        ].map(kpi => {
           const Icon = kpi.icon;
           return (
             <Card key={kpi.label} className="p-4" hover>
@@ -167,7 +166,7 @@ export function Customers() {
                       <Badge variant={meta.variant} size="xs">{meta.label}</Badge>
                     </td>
                     <td className="px-4 py-3 hidden lg:table-cell">
-                      <span className="text-sm text-main font-medium">{lead.value || '—'}</span>
+                      <span className="text-sm text-main font-medium">{lead.value || '\u2014'}</span>
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <span className="text-xs text-subtle">{lead.lastContact}</span>

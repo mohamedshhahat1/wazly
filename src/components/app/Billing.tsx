@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { CreditCard, TrendingUp, Check, ArrowRight, Zap, X } from 'lucide-react';
 import { Card, Button, Badge, ProgressBar } from '@/components/ui';
 import { useReveal, useCountUp, usePrefersReducedMotion } from '@/lib/hooks';
@@ -7,7 +7,6 @@ import { pricingPlans } from '@/lib/mockData';
 export function Billing() {
   const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.1 });
   const reduced = usePrefersReducedMotion();
-  const [usage, setUsage] = useState(0);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('Growth');
   const [upgrading, setUpgrading] = useState(false);
@@ -17,7 +16,11 @@ export function Billing() {
   const pct = (Math.round(usageCount) / limit) * 100;
 
   const usageState = pct >= 100 ? 'full' : pct >= 90 ? 'critical' : pct >= 80 ? 'warning' : 'normal';
-  const usageColor = usageState === 'full' ? 'red' : usageState === 'critical' ? 'red' : usageState === 'warning' ? 'amber' : 'brand';
+
+  const usageColor: 'brand' | 'amber' | 'red' =
+    usageState === 'full' || usageState === 'critical' ? 'red'
+    : usageState === 'warning' ? 'amber'
+    : 'brand';
 
   const usageMessage =
     usageState === 'full' ? 'Plan limit reached'
@@ -49,7 +52,7 @@ export function Billing() {
               <Badge variant="brand" size="xs">Active</Badge>
             </div>
             <div className="text-2xl font-bold text-main">Growth</div>
-            <div className="text-sm text-muted mt-1">999 EGP/month · Renews on Sep 8, 2026</div>
+            <div className="text-sm text-muted mt-1">999 EGP/month \u00b7 Renews on Sep 8, 2026</div>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">Manage payment</Button>
@@ -73,7 +76,7 @@ export function Billing() {
           <span className="text-3xl font-bold text-main tabular-nums count-up">{Math.round(usageCount).toLocaleString()}</span>
           <span className="text-sm text-muted">/ {limit.toLocaleString()}</span>
         </div>
-        <ProgressBar value={pct} color={usageColor as any} animated className="mb-3" />
+        <ProgressBar value={pct} color={usageColor} animated className="mb-3" />
         <div className={`flex items-center gap-2 text-sm ${
           usageState === 'normal' ? 'text-muted' :
           usageState === 'warning' ? 'text-amber-600 dark:text-amber-400' :
@@ -97,7 +100,7 @@ export function Billing() {
           { label: 'AI Responses', value: Math.round(usageCount * 0.87), total: limit, color: 'brand' as const },
           { label: 'Human Handoffs', value: 240, total: 500, color: 'brand' as const },
           { label: 'Leads Captured', value: 342, total: 1000, color: 'green' as const },
-        ].map((item, i) => (
+        ].map(item => (
           <Card key={item.label} className="p-4" hover>
             <div className="text-xs text-muted mb-1">{item.label}</div>
             <div className="flex items-baseline gap-1 mb-2">
@@ -127,7 +130,7 @@ export function Billing() {
                   <CreditCard className="w-4 h-4 text-muted" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-main">{inv.plan} · {inv.amount}</div>
+                  <div className="text-sm font-medium text-main">{inv.plan} \u00b7 {inv.amount}</div>
                   <div className="text-xs text-subtle">{inv.date}</div>
                 </div>
               </div>
@@ -198,7 +201,7 @@ export function Billing() {
                   <div className="w-14 h-14 rounded-2xl bg-brand-bg flex items-center justify-center mx-auto mb-4">
                     {!reduced && <div className="w-7 h-7 border-3 border-brand-500 border-t-transparent rounded-full animate-spin" />}
                   </div>
-                  <div className="text-sm font-semibold text-main">Upgrading to {selectedPlan}…</div>
+                  <div className="text-sm font-semibold text-main">Upgrading to {selectedPlan}\u2026</div>
                   <div className="text-xs text-muted mt-1">Updating your plan and limits</div>
                 </div>
               )}

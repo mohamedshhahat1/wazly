@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Check, X, Loader, Link2, Zap, Search, Shield, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { Check, X, Loader, Link2, Zap, Shield } from 'lucide-react';
 import { Card, Button, Badge, StatusDot, ChannelBadge } from '@/components/ui';
 import { usePrefersReducedMotion } from '@/lib/hooks';
-import { integrations, channelMeta } from '@/lib/mockData';
+import { integrations } from '@/lib/mockData';
 
 const connectionSteps = [
   'Connecting',
@@ -59,7 +59,7 @@ export function Integrations() {
     { title: 'Connect your account', desc: 'Sign in to your account to get started.' },
     { title: 'Choose your business', desc: 'Select the business profile you want to connect.' },
     { title: 'Allow Wazly to manage conversations', desc: 'Wazly needs permission to read and reply to customer messages.' },
-    { title: 'Almost there…', desc: 'Review your settings and connect.' },
+    { title: 'Almost there\u2026', desc: 'Review your settings and connect.' },
   ];
 
   return (
@@ -71,19 +71,16 @@ export function Integrations() {
 
       {/* Connected channels summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {integrations.filter(i => i.channel).map(integ => {
-          const meta = integ.channel ? channelMeta[integ.channel] : null;
-          return (
-            <Card key={integ.id} className="p-4" hover>
-              <div className="flex items-center justify-between mb-2">
-                {integ.channel && <ChannelBadge channel={integ.channel} size="md" />}
-                <StatusDot status={integ.connected ? 'connected' : 'warning'} />
-              </div>
-              <div className="text-sm font-semibold text-main">{integ.name}</div>
-              <div className="text-xs text-muted mt-0.5">{integ.connected ? 'Connected' : 'Not connected'}</div>
-            </Card>
-          );
-        })}
+        {integrations.filter(i => i.channel).map(integ => (
+          <Card key={integ.id} className="p-4" hover>
+            <div className="flex items-center justify-between mb-2">
+              {integ.channel && <ChannelBadge channel={integ.channel} size="md" />}
+              <StatusDot status={integ.connected ? 'connected' : 'warning'} />
+            </div>
+            <div className="text-sm font-semibold text-main">{integ.name}</div>
+            <div className="text-xs text-muted mt-0.5">{integ.connected ? 'Connected' : 'Not connected'}</div>
+          </Card>
+        ))}
       </div>
 
       {/* All integrations */}
@@ -169,7 +166,7 @@ export function Integrations() {
                     {wizardStep === 0 && (
                       <div className="w-full space-y-2 animate-fade-in">
                         <div className="h-10 rounded-lg bg-muted flex items-center px-3 text-sm text-subtle">you@example.com</div>
-                        <div className="h-10 rounded-lg bg-muted flex items-center px-3 text-sm text-subtle">••••••••</div>
+                        <div className="h-10 rounded-lg bg-muted flex items-center px-3 text-sm text-subtle">\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022</div>
                       </div>
                     )}
                     {wizardStep === 1 && (
