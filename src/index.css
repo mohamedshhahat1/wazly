@@ -45,15 +45,90 @@ html {
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, sans-serif;
-  font-feature-settings: 'cv11', 'ss01';
+  font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Arabic text */
-[lang="ar"], .font-arabic {
-  font-family: 'Noto Kufi Arabic', 'Cairo', sans-serif;
-  line-height: 1.8;
+/* ------------------------------------------------------------------ *
+ * Arabic typography
+ *
+ * Arabic is not just translated Latin text. It needs its own rhythm:
+ * more room between lines for body copy, less for headings, and no
+ * letter-spacing at all — tracking breaks the joins between letters.
+ * ------------------------------------------------------------------ */
+
+.font-arabic,
+[lang='ar'] {
+  font-family: 'IBM Plex Sans Arabic', system-ui, sans-serif;
+}
+
+.font-latin,
+[lang='en'] {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.lang-ar body {
+  line-height: 1.75;
+}
+
+.lang-ar :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+/* Latin tracking utilities would break Arabic letter joining. Specificity
+   here (attribute + element) beats a single Tailwind utility class. */
+html[dir='rtl'] :is(h1, h2, h3, h4, h5, h6, p, span, div, a, button, li, td, th, label, input, textarea) {
+  letter-spacing: normal;
+}
+
+/* Arabic has no italic form; browsers would synthesise a slanted fake. */
+html[dir='rtl'] :is(em, i, .italic) {
+  font-style: normal;
+}
+
+/* Inter-specific alternates should not leak onto Arabic glyphs. */
+.lang-en body {
+  font-feature-settings: 'cv11', 'ss01';
+}
+
+/* ------------------------------------------------------------------ *
+ * Bidirectional text
+ *
+ * Numbers, prices, phone numbers, timestamps and technical identifiers
+ * must keep their own direction inside RTL prose, otherwise digits and
+ * punctuation reorder incorrectly.
+ * ------------------------------------------------------------------ */
+
+.force-ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: start;
+}
+
+.force-rtl {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.num {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+}
+
+bdi,
+code,
+kbd,
+samp,
+time,
+[data-ltr] {
+  unicode-bidi: isolate;
+}
+
+/* Mirror directional icons (arrows, chevrons) when the page flips. */
+html[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
 }
 
 /* Scrollbar */
@@ -80,11 +155,15 @@ body {
 .text-main { color: var(--text); }
 .text-muted { color: var(--text-muted); }
 .text-subtle { color: var(--text-subtle); }
+.text-border-strong { color: var(--border-strong); }
 .border-app { border-color: var(--border); }
 .border-strong { border-color: var(--border-strong); }
 .bg-brand { background-color: var(--brand); }
 .text-brand { color: var(--brand); }
 .bg-brand-bg { background-color: var(--brand-bg); }
+
+/* Hairline divider that reads correctly in both directions */
+.divide-app > * + * { border-color: var(--border); }
 
 /* Skeleton shimmer */
 .skeleton {
@@ -98,19 +177,19 @@ body {
   animation: shimmer 2s linear infinite;
 }
 
-/* Glass effect */
+/* Glass effect — deliberately light. Heavy blur reads as decoration. */
 .glass {
-  backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
-  background: color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
 }
 
 .glass-dark {
-  backdrop-filter: blur(12px) saturate(180%);
-  background: rgba(11, 17, 32, 0.8);
+  backdrop-filter: blur(8px) saturate(140%);
+  background: rgba(11, 17, 32, 0.88);
 }
 
-/* Gradient text */
+/* Gradient text — reserved for the wordmark, not for section headings. */
 .text-gradient-brand {
   background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%);
   -webkit-background-clip: text;
@@ -154,6 +233,11 @@ body {
   animation: flowDash 1.5s linear infinite;
 }
 
+/* Flow direction follows the document direction */
+html[dir='rtl'] .flow-line {
+  animation-direction: reverse;
+}
+
 /* Particle travel */
 @keyframes particleTravel {
   0% { offset-distance: 0%; opacity: 0; }
@@ -165,6 +249,23 @@ body {
 /* Count up transition */
 .count-up {
   font-variant-numeric: tabular-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Chat bubbles: tail corner follows the document direction */
+.bubble-in {
+  border-start-start-radius: 0.75rem;
+  border-start-end-radius: 0.75rem;
+  border-end-end-radius: 0.75rem;
+  border-end-start-radius: 0.125rem;
+}
+
+.bubble-out {
+  border-start-start-radius: 0.75rem;
+  border-start-end-radius: 0.75rem;
+  border-end-start-radius: 0.75rem;
+  border-end-end-radius: 0.125rem;
 }
 
 /* Reduced motion */

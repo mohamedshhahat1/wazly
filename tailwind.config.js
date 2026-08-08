@@ -5,8 +5,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        arabic: ['"Noto Kufi Arabic"', '"Cairo"', 'sans-serif'],
+        // IBM Plex Sans Arabic carries both scripts, so Arabic and Latin share
+        // one voice instead of fighting each other. Inter stays as the Latin
+        // fallback and is available explicitly via `font-latin`.
+        sans: ['"IBM Plex Sans Arabic"', 'Inter', 'system-ui', 'sans-serif'],
+        arabic: ['"IBM Plex Sans Arabic"', 'system-ui', 'sans-serif'],
+        latin: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'monospace'],
       },
       colors: {
@@ -47,6 +51,13 @@ export default {
           950: '#020617',
         },
       },
+      // Tightened one step down from the Tailwind defaults so cards read as
+      // crisp product surfaces rather than soft bubbles.
+      borderRadius: {
+        xl: '0.625rem',
+        '2xl': '0.75rem',
+        '3xl': '1rem',
+      },
       animation: {
         'fade-in': 'fadeIn 0.4s ease-out forwards',
         'fade-in-up': 'fadeInUp 0.5s ease-out forwards',
@@ -64,6 +75,7 @@ export default {
         'float-up': 'floatUp 3s ease-in-out infinite',
         'spin-slow': 'spin 2s linear infinite',
         'gradient-shift': 'gradientShift 8s ease infinite',
+        'message-in': 'messageIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
@@ -86,6 +98,12 @@ export default {
         scaleIn: {
           '0%': { opacity: '0', transform: 'scale(0.95)' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        // Direction-neutral message arrival: rises and settles rather than
+        // sliding sideways, so it reads the same in RTL and LTR.
+        messageIn: {
+          '0%': { opacity: '0', transform: 'translateY(8px) scale(0.985)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
         },
         pulseSoft: {
           '0%, 100%': { opacity: '1' },
@@ -129,13 +147,15 @@ export default {
         'swift': 'cubic-bezier(0.4, 0, 0.2, 1)',
         'snappy': 'cubic-bezier(0.16, 1, 0.3, 1)',
       },
+      // Restrained: tuned to a neutral ink tone and roughly half the previous
+      // spread. `glow` is a 1px brand ring now, not a bloom.
       boxShadow: {
-        'soft': '0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-        'medium': '0 4px 16px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04)',
-        'large': '0 8px 32px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04)',
-        'xl': '0 16px 48px rgba(0,0,0,0.1), 0 8px 16px rgba(0,0,0,0.06)',
-        'glow': '0 0 24px rgba(20, 184, 166, 0.15)',
-        'glow-strong': '0 0 32px rgba(20, 184, 166, 0.3)',
+        'soft': '0 1px 2px rgba(15,23,42,0.04), 0 1px 1px rgba(15,23,42,0.03)',
+        'medium': '0 2px 6px rgba(15,23,42,0.05), 0 1px 2px rgba(15,23,42,0.04)',
+        'large': '0 6px 20px rgba(15,23,42,0.06), 0 2px 6px rgba(15,23,42,0.04)',
+        'xl': '0 12px 32px rgba(15,23,42,0.08), 0 4px 10px rgba(15,23,42,0.04)',
+        'glow': '0 0 0 1px rgba(13,148,136,0.14)',
+        'glow-strong': '0 0 0 1px rgba(13,148,136,0.28), 0 2px 8px rgba(13,148,136,0.12)',
       },
     },
   },
