@@ -14,6 +14,7 @@ export interface Message {
 export interface Conversation {
   id: string;
   customerName: string;
+  customerNameEn?: string;
   customerAvatar: string;
   channel: ChannelType;
   preview: string;
@@ -23,17 +24,35 @@ export interface Conversation {
   status: ConversationStatus;
   messages: Message[];
   intent?: string;
+  intentEn?: string;
   leadScore?: number;
   operator?: string;
+  phone?: string;
 }
 
 export interface Operator {
   id: string;
   name: string;
+  nameEn?: string;
   role: string;
+  roleEn?: string;
   avatar: string;
   online: boolean;
 }
+
+/**
+ * The demo workspace belongs to one real-feeling business rather than a
+ * generic "company". Every conversation, lead and metric below comes from it.
+ */
+export const company = {
+  name: 'شركة الكيان للتشطيبات والمقاولات العامة',
+  shortName: 'شركة الكيان',
+  nameEn: 'Al Kayan Finishing & General Contracting',
+  shortNameEn: 'Al Kayan',
+  industry: 'تشطيبات ومقاولات',
+  industryEn: 'Finishing & contracting',
+  areas: ['التجمع الخامس', 'القاهرة الجديدة', 'المعادي', 'الشيخ زايد'],
+};
 
 export const channelMeta: Record<ChannelType, { label: string; color: string; bgClass: string; icon: string }> = {
   whatsapp: { label: 'WhatsApp', color: '#25D366', bgClass: 'channel-whatsapp', icon: 'whatsapp' },
@@ -43,72 +62,100 @@ export const channelMeta: Record<ChannelType, { label: string; color: string; bg
 };
 
 export const operators: Operator[] = [
-  { id: '1', name: 'Mohamed', role: 'Sales Operator', avatar: 'M', online: true },
-  { id: '2', name: 'Layla', role: 'Support Lead', avatar: 'L', online: true },
-  { id: '3', name: 'Karim', role: 'Customer Success', avatar: 'K', online: false },
-  { id: '4', name: 'Yasmin', role: 'Sales Operator', avatar: 'Y', online: true },
+  { id: '1', name: 'محمد سعيد', nameEn: 'Mohamed Saeed', role: 'المبيعات', roleEn: 'Sales', avatar: 'م', online: true },
+  { id: '2', name: 'ليلى فؤاد', nameEn: 'Layla Fouad', role: 'مسؤول خدمة العملاء', roleEn: 'Support Lead', avatar: 'ل', online: true },
+  { id: '3', name: 'كريم عادل', nameEn: 'Karim Adel', role: 'مهندس موقع', roleEn: 'Site Engineer', avatar: 'ك', online: false },
+  { id: '4', name: 'ياسمين طارق', nameEn: 'Yasmin Tarek', role: 'المبيعات', roleEn: 'Sales', avatar: 'ي', online: true },
 ];
 
-// ─── Hero conversation script ─────────────────────────────────────
+// ─── Hero conversation script ─────────────────────────────────
 export const heroScript = [
   {
     type: 'customer' as const,
-    text: 'مواعيد العمل إيه؟',
+    text: 'مساء الخير، ممكن أعرف تكلفة تشطيب شقة 150 متر؟',
     arabic: true,
   },
   {
     type: 'processing' as const,
-    steps: ['Thinking', 'Searching knowledge', 'Found relevant information', 'Generating response'],
+    steps: ['بيقرا الرسالة', 'بيدوّر في معرفة الشركة', 'لقى قائمة الأسعار', 'بيكتب الرد'],
   },
   {
     type: 'ai' as const,
-    text: 'أهلًا 👋\nمواعيد العمل من السبت للخميس من 9 صباحًا حتى 10 مساءً.',
+    text: 'أهلًا بحضرتك 👋\nأكيد. تكلفة التشطيب بتختلف حسب مستوى التشطيب والخامات المطلوبة.\nلو تحب، ابعتلنا موقع الشقة ونوع التشطيب المطلوب، ونقدر نساعدك بتقدير مبدئي.',
     arabic: true,
-    source: 'Company Knowledge',
+    source: 'قائمة الأسعار',
   },
   {
     type: 'customer' as const,
-    text: 'ممكن أعرف الأسعار؟',
+    text: 'هل بتشتغلوا في التجمع الخامس؟',
     arabic: true,
   },
   {
     type: 'processing' as const,
-    steps: ['Thinking', 'Searching knowledge', 'Found relevant information', 'Generating response'],
+    steps: ['بيقرا الرسالة', 'بيدوّر في معرفة الشركة', 'لقى نطاق العمل', 'بيكتب الرد'],
   },
   {
     type: 'ai' as const,
-    text: 'بالطبع! 📋\nلدينا عدة باقات تناسب احتياجاتك:\n• الباقة الأساسية — ١٩٩ ج\n• الباقة المتقدمة — ٣٩٩ ج\n• باقة البريميوم — ٦٩٩ ج\nأي باقة تهمك أكثر؟',
+    text: 'أيوه، بننفذ أعمال التشطيبات في القاهرة الجديدة والتجمع الخامس والمناطق المحيطة.',
     arabic: true,
-    source: 'Pricing Document',
+    source: 'معرفة الشركة',
   },
 ];
 
-// ─── Handoff conversation script ──────────────────────────────────
+/**
+ * Extended hero demo: the full arc the landing page tells — customer asks, AI
+ * answers, customer asks for a person, a real operator takes over.
+ */
+export const heroHandoffScript = [
+  {
+    type: 'customer' as const,
+    text: 'أنا عايز أتكلم مع حد من الفريق لو سمحت.',
+    arabic: true,
+  },
+  {
+    type: 'ai' as const,
+    text: 'هحوّل حضرتك دلوقتي لأحد أعضاء فريق المبيعات عشان يساعدك في التفاصيل.',
+    arabic: true,
+  },
+  { type: 'status' as const, status: 'طلب العميل التحدث مع موظف' },
+  { type: 'status' as const, status: 'محمد انضم للمحادثة' },
+  {
+    type: 'operator' as const,
+    text: 'أهلًا يا أستاذ أحمد، معاك محمد من فريق المبيعات. تحت أمرك.',
+    arabic: true,
+    operator: 'محمد سعيد',
+  },
+];
+
+// ─── Handoff conversation script ───────────────────────────────
 export const handoffScript = [
   {
     type: 'customer' as const,
-    text: 'I want to speak with someone about a custom quotation.',
+    text: 'عايز عرض سعر مفصّل للشقة قبل ما أقرر.',
+    arabic: true,
   },
   {
     type: 'ai' as const,
-    text: "I'll connect you with a team member who can help with custom quotations.",
+    text: 'هحوّل حضرتك دلوقتي لأحد أعضاء فريق المبيعات عشان يجهزلك عرض سعر مفصّل.',
+    arabic: true,
   },
   {
     type: 'status' as const,
-    status: 'Human takeover',
+    status: 'طلب العميل التحدث مع موظف',
   },
   {
     type: 'status' as const,
-    status: 'Assigned to Mohamed',
+    status: 'تم تحويل المحادثة إلى محمد — المبيعات',
   },
   {
     type: 'operator' as const,
-    text: 'Hello! This is Mohamed from Sales. I\'d be happy to prepare a custom quotation for you. Could you share more details about what you need?',
-    operator: 'Mohamed',
+    text: 'أهلًا يا أستاذ أحمد، معاك محمد من فريق المبيعات. تحت أمرك — هبعتلك عرض السعر خلال ساعة.',
+    arabic: true,
+    operator: 'محمد سعيد',
   },
 ];
 
-// ─── Lead qualification script ────────────────────────────────────
+// ─── Lead qualification script ────────────────────────────────
 export const leadQualScript = [
   {
     type: 'customer' as const,
@@ -117,8 +164,8 @@ export const leadQualScript = [
   },
   {
     type: 'detect' as const,
-    intent: 'Pricing',
-    lead: 'High Intent',
+    intent: 'طلب سعر',
+    lead: 'نية شراء عالية',
     score: 42,
   },
   {
@@ -128,7 +175,7 @@ export const leadQualScript = [
   },
   {
     type: 'customer' as const,
-    text: 'في المعادي، وعايز أبدأ الشهر الجاي.',
+    text: 'في التجمع الخامس، وعايز أبدأ الشهر الجاي.',
     arabic: true,
   },
   {
@@ -137,7 +184,7 @@ export const leadQualScript = [
   },
   {
     type: 'customer' as const,
-    text: 'الميزانية تقريبًا 200 ألف جنيه.',
+    text: 'الميزانية تقريبًا 800 ألف جنيه.',
     arabic: true,
   },
   {
@@ -149,93 +196,110 @@ export const leadQualScript = [
   },
 ];
 
-// ─── Inbox conversations ──────────────────────────────────────────
+// ─── Inbox conversations ───────────────────────────────────────
 export const inboxConversations: Conversation[] = [
   {
     id: 'c1',
-    customerName: 'Ahmed',
-    customerAvatar: 'A',
+    customerName: 'محمد حسن',
+    customerNameEn: 'Mohamed Hassan',
+    customerAvatar: 'م',
     channel: 'whatsapp',
-    preview: 'هل المنتج متوفر؟',
+    preview: 'عاوز أعرف تكلفة التشطيب للمتر',
     previewArabic: true,
-    time: '2m',
+    time: '٢ د',
     unread: 2,
     status: 'ai',
-    intent: 'Product Inquiry',
-    leadScore: 55,
+    intent: 'طلب سعر',
+    intentEn: 'Pricing',
+    leadScore: 74,
+    phone: '+20 100 214 8890',
     messages: [
-      { id: 'm1', sender: 'customer', text: 'هل المنتج متوفر؟', arabic: true, time: '10:32 AM' },
-      { id: 'm2', sender: 'ai', text: 'أهلًا 👋 نعم، المنتج متوفر حاليًا. هل ترغب في معرفة المزيد عن الأسعار أو المواصفات؟', arabic: true, time: '10:32 AM', status: 'read' },
+      { id: 'm1', sender: 'customer', text: 'عاوز أعرف تكلفة التشطيب للمتر', arabic: true, time: '10:32' },
+      { id: 'm2', sender: 'ai', text: 'أكيد يا أستاذ محمد، ممكن أعرف مساحة الوحدة والموقع؟', arabic: true, time: '10:32', status: 'read' },
     ],
   },
   {
     id: 'c2',
-    customerName: 'Sara',
-    customerAvatar: 'S',
+    customerName: 'سارة أحمد',
+    customerNameEn: 'Sara Ahmed',
+    customerAvatar: 'س',
     channel: 'instagram',
-    preview: 'عايز أعرف السعر',
+    preview: 'شفت أعمالكم وعاجباني، إيه الخطوات؟',
     previewArabic: true,
-    time: '5m',
+    time: '٥ د',
     unread: 1,
     status: 'ai',
-    intent: 'Pricing',
-    leadScore: 72,
+    intent: 'استفسار عام',
+    intentEn: 'General enquiry',
+    leadScore: 61,
+    phone: '+20 122 776 3410',
     messages: [
-      { id: 'm1', sender: 'customer', text: 'عايز أعرف السعر', arabic: true, time: '10:29 AM' },
-      { id: 'm2', sender: 'ai', text: 'أهلًا! 📋 لدينا عدة باقات. أي خدمة تهمك بالتحديد؟', arabic: true, time: '10:29 AM', status: 'read' },
+      { id: 'm1', sender: 'customer', text: 'شفت أعمالكم وعاجباني، إيه الخطوات؟', arabic: true, time: '10:29' },
+      { id: 'm2', sender: 'ai', text: 'نورتينا 🙏\nالخطوة الأولى معاينة للوحدة، وبعدها بنبعت عرض سعر مفصّل. تحبي نحدد معاينة إمتى؟', arabic: true, time: '10:29', status: 'read' },
     ],
   },
   {
     id: 'c3',
-    customerName: 'Omar',
-    customerAvatar: 'O',
+    customerName: 'محمود السيد',
+    customerNameEn: 'Mahmoud Elsayed',
+    customerAvatar: 'م',
     channel: 'messenger',
-    preview: 'ممكن حد يساعدني؟',
+    preview: 'عايز أتكلم مع حد من الفريق',
     previewArabic: true,
-    time: '12m',
+    time: '١٢ د',
     unread: 0,
     status: 'human',
-    intent: 'Support',
-    leadScore: 40,
-    operator: 'Layla',
+    intent: 'عرض سعر',
+    intentEn: 'Quotation',
+    leadScore: 83,
+    operator: 'ليلى فؤاد',
+    phone: '+20 111 502 6677',
     messages: [
-      { id: 'm1', sender: 'customer', text: 'ممكن حد يساعدني؟', arabic: true, time: '10:18 AM' },
-      { id: 'm2', sender: 'ai', text: 'أهلًا! كيف يمكنني مساعدتك اليوم؟', arabic: true, time: '10:18 AM', status: 'read' },
-      { id: 'm3', sender: 'customer', text: 'عايز أتكلم مع حد من الفريق', arabic: true, time: '10:20 AM' },
-      { id: 'm4', sender: 'operator', text: 'Hello! This is Layla. How can I help you today?', time: '10:22 AM', status: 'read' },
+      { id: 'm1', sender: 'customer', text: 'عندي فيلا في الشيخ زايد محتاجة تشطيب كامل', arabic: true, time: '10:18' },
+      { id: 'm2', sender: 'ai', text: 'تحت أمرك. المساحة تقريبًا كام، ومستوى التشطيب اللي في بالك إيه؟', arabic: true, time: '10:18', status: 'read' },
+      { id: 'm3', sender: 'customer', text: 'عايز أتكلم مع حد من الفريق', arabic: true, time: '10:20' },
+      { id: 'm4', sender: 'operator', text: 'أهلًا يا أستاذ محمود، معاك ليلى. تحت أمرك — نقدر نحدد معاينة بكرة لو يناسبك.', arabic: true, time: '10:22', status: 'read' },
     ],
   },
   {
     id: 'c4',
-    customerName: 'Nour',
-    customerAvatar: 'N',
+    customerName: 'أحمد محمد',
+    customerNameEn: 'Ahmed Mohamed',
+    customerAvatar: 'أ',
     channel: 'whatsapp',
-    preview: 'Thank you for the quick response!',
-    time: '1h',
+    preview: 'تمام، متشكر على سرعة الرد',
+    previewArabic: true,
+    time: '١ س',
     unread: 0,
     status: 'resolved',
-    intent: 'General',
-    leadScore: 30,
+    intent: 'مواعيد العمل',
+    intentEn: 'Working hours',
+    leadScore: 34,
+    phone: '+20 106 933 1245',
     messages: [
-      { id: 'm1', sender: 'customer', text: 'What are your working hours?', time: '9:15 AM' },
-      { id: 'm2', sender: 'ai', text: 'We are open Saturday to Thursday, 9 AM to 10 PM.', time: '9:15 AM', status: 'read' },
-      { id: 'm3', sender: 'customer', text: 'Thank you for the quick response!', time: '9:16 AM', status: 'read' },
+      { id: 'm1', sender: 'customer', text: 'مواعيد المعاينة إيه؟', arabic: true, time: '09:15' },
+      { id: 'm2', sender: 'ai', text: 'المعاينات من السبت للخميس، من 10 صباحًا لـ 6 مساءً.', arabic: true, time: '09:15', status: 'read' },
+      { id: 'm3', sender: 'customer', text: 'تمام، متشكر على سرعة الرد', arabic: true, time: '09:16', status: 'read' },
     ],
   },
   {
     id: 'c5',
-    customerName: 'Mahmoud',
-    customerAvatar: 'M',
+    customerName: 'نورهان عادل',
+    customerNameEn: 'Nourhan Adel',
+    customerAvatar: 'ن',
     channel: 'comments',
-    preview: 'Is this available for shipping?',
-    time: '2h',
+    preview: 'بتشتغلوا في المعادي؟',
+    previewArabic: true,
+    time: '٢ س',
     unread: 0,
     status: 'resolved',
-    intent: 'Shipping',
-    leadScore: 50,
+    intent: 'نطاق العمل',
+    intentEn: 'Coverage',
+    leadScore: 47,
+    phone: '+20 128 445 9002',
     messages: [
-      { id: 'm1', sender: 'customer', text: 'Is this available for shipping?', time: '8:30 AM' },
-      { id: 'm2', sender: 'ai', text: 'Yes! We ship nationwide. Delivery takes 2-4 business days.', time: '8:30 AM', status: 'read' },
+      { id: 'm1', sender: 'customer', text: 'بتشتغلوا في المعادي؟', arabic: true, time: '08:30' },
+      { id: 'm2', sender: 'ai', text: 'أيوه، بننفذ في المعادي والقاهرة الجديدة والتجمع والشيخ زايد.', arabic: true, time: '08:30', status: 'read' },
     ],
   },
 ];
@@ -243,141 +307,186 @@ export const inboxConversations: Conversation[] = [
 // ─── New conversations that arrive dynamically ────────────────────
 export const incomingConversations = [
   {
-    customerName: 'Farida',
-    customerAvatar: 'F',
+    customerName: 'فريدة سمير',
+    customerNameEn: 'Farida Samir',
+    customerAvatar: 'ف',
     channel: 'whatsapp' as ChannelType,
-    message: 'هل عندكم توصيل؟',
+    message: 'بتعملوا تشطيب محلات تجارية؟',
     arabic: true,
-    intent: 'Shipping',
+    intent: 'نطاق العمل',
+    intentEn: 'Coverage',
   },
   {
-    customerName: 'Hassan',
-    customerAvatar: 'H',
+    customerName: 'حسن إبراهيم',
+    customerNameEn: 'Hassan Ibrahim',
+    customerAvatar: 'ح',
     channel: 'instagram' as ChannelType,
-    message: 'Price please',
-    intent: 'Pricing',
+    message: 'ممكن أعرف الأسعار؟',
+    arabic: true,
+    intent: 'طلب سعر',
+    intentEn: 'Pricing',
   },
   {
-    customerName: 'Reem',
-    customerAvatar: 'R',
+    customerName: 'ريم مصطفى',
+    customerNameEn: 'Reem Mostafa',
+    customerAvatar: 'ر',
     channel: 'messenger' as ChannelType,
-    message: 'بعد إذنكم محتاج استشارة',
+    message: 'محتاجة استشارة في تشطيب شقة',
     arabic: true,
-    intent: 'Consultation',
+    intent: 'استشارة',
+    intentEn: 'Consultation',
   },
 ];
 
-// ─── AI Playground ────────────────────────────────────────────────
+// ─── AI Playground ───────────────────────────────────────────
 export const playgroundExamples = [
-  { question: 'هل عندكم توصيل للقاهرة؟', arabic: true, answer: 'نعم! 🚚 نوفر خدمة التوصيل للقاهرة وكل المحافظات. رسوم التوصيل داخل القاهرة 50 جنيه، وخارجها تبدأ من 80 جنيه. التوصيل خلال 2-3 أيام عمل.', source: 'Delivery Policy', confidence: 94 },
-  { question: 'What are your working hours?', arabic: false, answer: 'We are open Saturday to Thursday, from 9:00 AM to 10:00 PM. Fridays we are closed.', source: 'Company Information', confidence: 96 },
-  { question: 'ممكن أعرف أسعار الباقات؟', arabic: true, answer: 'بالطبع! 📋 لدينا ثلاث باقات:\n• الأساسية — ١٩٩ ج/شهر\n• المتقدمة — ٣٩٩ ج/شهر\n• بريميوم — ٦٩٩ ج/شهر\nكل الباقات تشمل دعم فني وضمان.', source: 'Pricing Document', confidence: 91 },
+  {
+    question: 'تكلفة تشطيب المتر كام؟',
+    arabic: true,
+    answer:
+      'سعر المتر بيبدأ من 4,500 جنيه للتشطيب السوبر لوكس، ومن 6,800 جنيه للتشطيب الفاخر. السعر النهائي بيتحدد بعد المعاينة حسب الخامات.',
+    source: 'قائمة الأسعار',
+    confidence: 94,
+  },
+  {
+    question: 'التشطيب بياخد قد إيه؟',
+    arabic: true,
+    answer:
+      'شقة 150 متر بتاخد من 75 لـ 90 يوم عمل، حسب مستوى التشطيب وتوفر الخامات. بندي جدول زمني معتمد مع العقد.',
+    source: 'معرفة الشركة',
+    confidence: 89,
+  },
+  {
+    question: 'Do you work in New Cairo?',
+    arabic: false,
+    answer:
+      'Yes. We carry out finishing work across New Cairo, the Fifth Settlement, Maadi and Sheikh Zayed. Site visits are available Saturday to Thursday.',
+    source: 'Company knowledge',
+    confidence: 96,
+  },
 ];
 
-// ─── Analytics data ───────────────────────────────────────────────
+// ─── Analytics data ──────────────────────────────────────────
+// Figures are deliberately mid-sized and internally consistent: the channel
+// rows sum to the 3,842 monthly total, percentages sum to 100, and per-channel
+// leads sum to the 214 headline.
 export const analyticsData = {
   kpis: {
-    conversations: { value: 12483, label: 'Conversations', suffix: '' },
-    aiResolution: { value: 87, label: 'AI Resolution Rate', suffix: '%' },
-    leads: { value: 342, label: 'Leads Captured', suffix: '' },
-    responseTime: { value: 3.8, label: 'Avg Response Time', suffix: 's', decimals: true },
+    conversations: { value: 3842, label: 'المحادثات', labelEn: 'Conversations', suffix: '' },
+    aiResolution: { value: 86, label: 'حلها الـ AI', labelEn: 'Resolved by AI', suffix: '%' },
+    leads: { value: 214, label: 'عملاء محتملين', labelEn: 'Leads', suffix: '' },
+    responseTime: { value: 4.2, label: 'متوسط وقت الرد', labelEn: 'Avg response', suffix: 'ث', decimals: true },
   },
+  // The Egyptian working week starts on Saturday and Friday is the quiet day.
   daily: [
-    { day: 'Mon', ai: 420, human: 80 },
-    { day: 'Tue', ai: 510, human: 95 },
-    { day: 'Wed', ai: 680, human: 110 },
-    { day: 'Thu', ai: 590, human: 70 },
-    { day: 'Fri', ai: 320, human: 40 },
-    { day: 'Sat', ai: 720, human: 130 },
-    { day: 'Sun', ai: 810, human: 150 },
+    { day: 'السبت', dayEn: 'Sat', ai: 168, human: 22 },
+    { day: 'الأحد', dayEn: 'Sun', ai: 152, human: 19 },
+    { day: 'الاتنين', dayEn: 'Mon', ai: 141, human: 17 },
+    { day: 'التلات', dayEn: 'Tue', ai: 134, human: 15 },
+    { day: 'الأربع', dayEn: 'Wed', ai: 149, human: 18 },
+    { day: 'الخميس', dayEn: 'Thu', ai: 118, human: 14 },
+    { day: 'الجمعة', dayEn: 'Fri', ai: 46, human: 5 },
   ],
   monthly: [
-    { day: 'W1', ai: 2100, human: 480 },
-    { day: 'W2', ai: 2800, human: 520 },
-    { day: 'W3', ai: 3100, human: 490 },
-    { day: 'W4', ai: 3500, human: 610 },
+    { day: 'الأسبوع 1', dayEn: 'W1', ai: 820, human: 78 },
+    { day: 'الأسبوع 2', dayEn: 'W2', ai: 890, human: 82 },
+    { day: 'الأسبوع 3', dayEn: 'W3', ai: 950, human: 88 },
+    { day: 'الأسبوع 4', dayEn: 'W4', ai: 870, human: 64 },
   ],
   channelDistribution: [
-    { channel: 'whatsapp' as ChannelType, conversations: 7740, percentage: 62, aiResolution: 91, leads: 215, conversion: 12.4 },
-    { channel: 'instagram' as ChannelType, conversations: 2620, percentage: 21, aiResolution: 84, leads: 78, conversion: 8.2 },
-    { channel: 'messenger' as ChannelType, conversations: 1375, percentage: 11, aiResolution: 79, leads: 34, conversion: 6.1 },
-    { channel: 'comments' as ChannelType, conversations: 748, percentage: 6, aiResolution: 72, leads: 15, conversion: 4.3 },
+    { channel: 'whatsapp' as ChannelType, conversations: 2612, percentage: 68, aiResolution: 90, leads: 142, conversion: 13.1 },
+    { channel: 'instagram' as ChannelType, conversations: 730, percentage: 19, aiResolution: 83, leads: 44, conversion: 9.4 },
+    { channel: 'messenger' as ChannelType, conversations: 346, percentage: 9, aiResolution: 78, leads: 19, conversion: 6.8 },
+    { channel: 'comments' as ChannelType, conversations: 154, percentage: 4, aiResolution: 71, leads: 9, conversion: 5.2 },
   ],
 };
 
-// ─── Pricing plans ────────────────────────────────────────────────
+// ─── Pricing plans ───────────────────────────────────────────
 export const pricingPlans = [
   {
-    name: 'Starter',
+    name: 'البداية',
+    nameEn: 'Starter',
     price: 499,
-    period: 'EGP/mo',
+    period: 'ج.م/شهر',
+    periodEn: 'EGP/mo',
     conversations: 1000,
-    features: ['1,000 AI conversations', '2 channels', 'AI knowledge base', 'Basic analytics', 'Email support'],
+    features: ['1,000 محادثة بالـ AI', 'قناتين', 'معرفة الشركة', 'تحليلات أساسية', 'دعم بالإيميل'],
+    featuresEn: ['1,000 AI conversations', '2 channels', 'Company knowledge', 'Basic analytics', 'Email support'],
     highlighted: false,
   },
   {
-    name: 'Growth',
+    name: 'النمو',
+    nameEn: 'Growth',
     price: 999,
-    period: 'EGP/mo',
+    period: 'ج.م/شهر',
+    periodEn: 'EGP/mo',
     conversations: 5000,
-    features: ['5,000 AI conversations', '4 channels', 'AI + human handoff', 'Advanced analytics', 'Lead qualification', 'Priority support'],
+    features: ['5,000 محادثة بالـ AI', '4 قنوات', 'تحويل لموظف', 'تحليلات متقدمة', 'تأهيل العملاء', 'دعم ذو أولوية'],
+    featuresEn: ['5,000 AI conversations', '4 channels', 'Human handoff', 'Advanced analytics', 'Lead qualification', 'Priority support'],
     highlighted: true,
   },
   {
-    name: 'Business',
+    name: 'الأعمال',
+    nameEn: 'Business',
     price: 1999,
-    period: 'EGP/mo',
+    period: 'ج.م/شهر',
+    periodEn: 'EGP/mo',
     conversations: 15000,
-    features: ['15,000 AI conversations', 'All channels', 'Team collaboration', 'Custom knowledge sources', 'API access', 'Dedicated manager'],
+    features: ['15,000 محادثة بالـ AI', 'كل القنوات', 'عمل جماعي للفريق', 'مصادر معرفة مخصصة', 'وصول للـ API', 'مدير حساب مخصص'],
+    featuresEn: ['15,000 AI conversations', 'All channels', 'Team collaboration', 'Custom knowledge sources', 'API access', 'Dedicated manager'],
     highlighted: false,
   },
   {
-    name: 'Enterprise',
+    name: 'المؤسسات',
+    nameEn: 'Enterprise',
     price: null,
-    period: 'Custom',
+    period: 'حسب الطلب',
+    periodEn: 'Custom',
     conversations: null,
-    features: ['Unlimited conversations', 'All channels + custom', 'White-label option', 'SSO & SAML', 'SLA guarantee', '24/7 support'],
+    features: ['محادثات غير محدودة', 'كل القنوات وأكتر', 'علامة تجارية خاصة', 'SSO و SAML', 'اتفاقية مستوى خدمة', 'دعم 24/7'],
+    featuresEn: ['Unlimited conversations', 'All channels + custom', 'White-label option', 'SSO & SAML', 'SLA guarantee', '24/7 support'],
     highlighted: false,
   },
 ];
 
-// ─── Integrations ─────────────────────────────────────────────────
+// ─── Integrations ────────────────────────────────────────────
 export const integrations = [
-  { id: 'whatsapp', name: 'WhatsApp Business', channel: 'whatsapp' as ChannelType, connected: true, description: 'Connect your WhatsApp Business account to handle customer chats automatically.' },
-  { id: 'instagram', name: 'Instagram Direct', channel: 'instagram' as ChannelType, connected: true, description: 'Respond to Instagram DMs and mentions with AI-powered replies.' },
-  { id: 'messenger', name: 'Facebook Messenger', channel: 'messenger' as ChannelType, connected: true, description: 'Handle Messenger conversations and never miss a customer message.' },
-  { id: 'comments', name: 'Facebook Comments', channel: 'comments' as ChannelType, connected: false, description: 'Automatically reply to comments on your Facebook posts.' },
-  { id: 'telegram', name: 'Telegram', channel: null, connected: false, description: 'Connect Telegram to reach customers on another popular channel.' },
-  { id: 'slack', name: 'Slack', channel: null, connected: true, description: 'Get notified in Slack when leads are captured or handoffs happen.' },
-  { id: 'sheets', name: 'Google Sheets', channel: null, connected: false, description: 'Sync leads and conversation data to Google Sheets automatically.' },
-  { id: 'crm', name: 'CRM Sync', channel: null, connected: false, description: 'Push qualified leads directly to your CRM.' },
+  { id: 'whatsapp', name: 'WhatsApp Business', channel: 'whatsapp' as ChannelType, connected: true, description: 'اربط حساب واتساب بزنس وخلي الـ AI يرد على عملائك تلقائيًا.', descriptionEn: 'Connect your WhatsApp Business account to handle customer chats automatically.' },
+  { id: 'instagram', name: 'Instagram Direct', channel: 'instagram' as ChannelType, connected: true, description: 'رد على رسايل إنستجرام والمنشنز من مكان واحد.', descriptionEn: 'Respond to Instagram DMs and mentions with AI-powered replies.' },
+  { id: 'messenger', name: 'Facebook Messenger', channel: 'messenger' as ChannelType, connected: true, description: 'اتعامل مع محادثات ماسنجر من غير ما تفوتك رسالة.', descriptionEn: 'Handle Messenger conversations and never miss a customer message.' },
+  { id: 'comments', name: 'Facebook Comments', channel: 'comments' as ChannelType, connected: false, description: 'رد تلقائي على التعليقات على بوستات صفحتك.', descriptionEn: 'Automatically reply to comments on your Facebook posts.' },
+  { id: 'telegram', name: 'Telegram', channel: null, connected: false, description: 'اربط تليجرام ووصل لعملاء أكتر.', descriptionEn: 'Connect Telegram to reach customers on another popular channel.' },
+  { id: 'slack', name: 'Slack', channel: null, connected: true, description: 'يوصلك تنبيه على Slack أول ما يجي عميل محتمل أو تحويل.', descriptionEn: 'Get notified in Slack when leads are captured or handoffs happen.' },
+  { id: 'sheets', name: 'Google Sheets', channel: null, connected: false, description: 'صدّر العملاء وبيانات المحادثات لجوجل شيتس أوتوماتيك.', descriptionEn: 'Sync leads and conversation data to Google Sheets automatically.' },
+  { id: 'crm', name: 'CRM Sync', channel: null, connected: false, description: 'ابعت العملاء المؤهلين على طول للـ CRM بتاعك.', descriptionEn: 'Push qualified leads directly to your CRM.' },
 ];
 
-// ─── Knowledge sources ────────────────────────────────────────────
+// ─── Knowledge sources ───────────────────────────────────────
 export const knowledgeSources = [
-  { id: 'info', name: 'Company Information', icon: 'building', status: 'ready' as const },
-  { id: 'pdf', name: 'Product Catalog (PDF)', icon: 'file-text', status: 'ready' as const },
-  { id: 'faq', name: 'FAQ Document', icon: 'help-circle', status: 'ready' as const },
-  { id: 'products', name: 'Products & Pricing', icon: 'tag', status: 'ready' as const },
-  { id: 'policies', name: 'Policies & Terms', icon: 'shield', status: 'processing' as const },
+  { id: 'info', name: 'بيانات الشركة', nameEn: 'Company information', icon: 'building', status: 'ready' as const },
+  { id: 'pdf', name: 'كتالوج الأعمال (PDF)', nameEn: 'Project catalogue (PDF)', icon: 'file-text', status: 'ready' as const },
+  { id: 'faq', name: 'الأسئلة المتكررة', nameEn: 'FAQ document', icon: 'help-circle', status: 'ready' as const },
+  { id: 'products', name: 'قائمة الأسعار والخامات', nameEn: 'Price list & materials', icon: 'tag', status: 'ready' as const },
+  { id: 'policies', name: 'شروط التعاقد والدفع', nameEn: 'Contract & payment terms', icon: 'shield', status: 'processing' as const },
 ];
 
-// ─── AI Readiness items ───────────────────────────────────────────
+// ─── AI Readiness items ──────────────────────────────────────
 export const readinessItems = [
-  { id: 'info', label: 'Company Information', done: true },
-  { id: 'products', label: 'Products', done: true },
-  { id: 'faq', label: 'FAQ', done: true },
-  { id: 'hours', label: 'Working Hours', done: true },
-  { id: 'policies', label: 'Policies', done: false },
+  { id: 'info', label: 'بيانات الشركة', labelEn: 'Company information', done: true },
+  { id: 'products', label: 'الخدمات والأسعار', labelEn: 'Services & pricing', done: true },
+  { id: 'faq', label: 'الأسئلة المتكررة', labelEn: 'FAQ', done: true },
+  { id: 'hours', label: 'مواعيد العمل والمعاينة', labelEn: 'Working hours', done: true },
+  { id: 'policies', label: 'شروط التعاقد', labelEn: 'Contract terms', done: false },
 ];
 
-// ─── Onboarding steps ─────────────────────────────────────────────
-export const onboardingSteps = ['Business', 'Channels', 'Knowledge', 'AI', 'Team', 'Ready'];
+// ─── Onboarding steps ────────────────────────────────────────
+export const onboardingSteps = ['الشركة', 'القنوات', 'المعرفة', 'الـ AI', 'الفريق', 'جاهز'];
+export const onboardingStepsEn = ['Business', 'Channels', 'Knowledge', 'AI', 'Team', 'Ready'];
 
-// ─── Notifications ────────────────────────────────────────────────
+// ─── Notifications ──────────────────────────────────────────
 export const notificationTemplates = [
-  { type: 'lead' as const, title: 'New lead detected', body: 'Ahmed is interested in your Premium Package.', time: 'Just now' },
-  { type: 'handoff' as const, title: 'Human handoff', body: 'Customer requested a human operator.', time: '2m ago' },
-  { type: 'integration' as const, title: 'Integration', body: 'WhatsApp connected successfully.', time: '1h ago' },
-  { type: 'knowledge' as const, title: 'AI Knowledge', body: 'New knowledge source indexed.', time: '3h ago' },
+  { type: 'lead' as const, title: 'عميل محتمل جديد', titleEn: 'New lead', body: 'محمد حسن سأل عن تشطيب شقة 150 متر.', bodyEn: 'Mohamed Hassan asked about finishing a 150 m² flat.', time: 'دلوقتي', timeEn: 'Just now' },
+  { type: 'handoff' as const, title: 'تحويل لموظف', titleEn: 'Human handoff', body: 'محمود السيد طلب التحدث مع المبيعات.', bodyEn: 'Mahmoud Elsayed asked to speak with sales.', time: 'من ٢ د', timeEn: '2m ago' },
+  { type: 'integration' as const, title: 'ربط قناة', titleEn: 'Integration', body: 'تم ربط واتساب بنجاح.', bodyEn: 'WhatsApp connected successfully.', time: 'من ساعة', timeEn: '1h ago' },
+  { type: 'knowledge' as const, title: 'معرفة الشركة', titleEn: 'Company knowledge', body: 'تمت فهرسة قائمة الأسعار الجديدة.', bodyEn: 'The new price list has been indexed.', time: 'من ٣ س', timeEn: '3h ago' },
 ];
