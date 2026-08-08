@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
-  Sparkles, MessageCircle, TrendingUp, Clock, Users, Bot,
-  ArrowUpRight, Zap, Target,
+  Sparkles, MessageCircle, Clock, Bot, ArrowUpRight, Target,
 } from 'lucide-react';
-import { Card, Badge, StatusDot, ChannelBadge, ProgressBar, Button } from '@/components/ui';
-import { useReveal, useCountUp, useInterval } from '@/lib/hooks';
+import { Card, Badge, StatusDot, ChannelBadge, Button } from '@/components/ui';
+import { useReveal, useCountUp } from '@/lib/hooks';
 import { analyticsData, inboxConversations, operators } from '@/lib/mockData';
 import { LeadQualification } from './LeadQualification';
 import type { AppView } from './AppShell';
@@ -21,7 +20,7 @@ export function Overview({ onViewChange }: OverviewProps) {
   const leads = useCountUp(analyticsData.kpis.leads.value, visible, 1400);
   const responseTime = useCountUp(analyticsData.kpis.responseTime.value, visible, 1200);
 
-  const [recentLeads, setRecentLeads] = useState([
+  const [recentLeads] = useState([
     { name: 'Ahmed', channel: 'whatsapp' as const, score: 91, intent: 'Pricing', time: '2m ago' },
     { name: 'Sara', channel: 'instagram' as const, score: 72, intent: 'Shipping', time: '8m ago' },
     { name: 'Omar', channel: 'messenger' as const, score: 68, intent: 'Support', time: '15m ago' },
@@ -144,7 +143,7 @@ export function Overview({ onViewChange }: OverviewProps) {
             <button onClick={() => onViewChange('customers')} className="text-xs text-brand hover:underline">View all</button>
           </div>
           <div className="space-y-2">
-            {recentLeads.map((lead, i) => (
+            {recentLeads.map(lead => (
               <div key={lead.name} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-xs font-semibold">
                   {lead.name[0]}
@@ -202,6 +201,7 @@ export function Overview({ onViewChange }: OverviewProps) {
             <h3 className="text-sm font-semibold text-main">AI Lead Qualification</h3>
             <p className="text-xs text-muted">Watch how AI detects intent and scores leads in real time</p>
           </div>
+          <button onClick={() => onViewChange('leads')} className="text-xs text-brand hover:underline">Open full view</button>
         </div>
         <LeadQualification />
       </div>

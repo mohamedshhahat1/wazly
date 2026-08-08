@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
-import { Sparkles, TrendingUp, Target, CheckCircle2, User } from 'lucide-react';
-import { useReveal, usePrefersReducedMotion, useCountUp } from '@/lib/hooks';
+import { Sparkles, TrendingUp, Target, CheckCircle2 } from 'lucide-react';
+import { useReveal, usePrefersReducedMotion } from '@/lib/hooks';
 import { leadQualScript } from '@/lib/mockData';
 import { Card, Badge, ProgressBar } from '@/components/ui';
 
@@ -20,7 +20,7 @@ export function LeadQualification() {
       return;
     }
 
-    let timeouts: ReturnType<typeof setTimeout>[] = [];
+    const timeouts: ReturnType<typeof setTimeout>[] = [];
     let cumulative = 500;
     setStep(-1);
     setCurrentScore(0);
@@ -130,8 +130,7 @@ export function LeadQualification() {
                       } ${s.arabic ? 'font-arabic' : ''}`}
                       dir={s.arabic ? 'rtl' : 'ltr'}
                     >
-                      {s.text || s.arabic || ''}
-                      {'text' in s && s.text}
+                      {s.text}
                     </div>
                   </div>
                 </div>
