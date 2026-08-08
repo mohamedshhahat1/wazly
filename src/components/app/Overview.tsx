@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import {
-  Sparkles, MessageCircle, Clock, Bot, ArrowUpRight, Target, UserRound,
-} from 'lucide-react';
+import { Sparkles, MessageCircle, Clock, Bot, ArrowUpRight, Target } from 'lucide-react';
 import { Card, Badge, StatusDot, ChannelBadge, Button } from '@/components/ui';
 import { useReveal, useCountUp } from '@/lib/hooks';
 import { useLang } from '@/lib/i18n';
@@ -68,9 +66,9 @@ export function Overview({ onViewChange }: OverviewProps) {
     }));
 
   return (
-    <div ref={ref} className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div ref={ref} className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Greeting */}
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
           <h2 className="text-xl font-bold text-main">{pick('أهلًا محمد', 'Welcome back, Mohamed')}</h2>
           <p className="text-sm text-muted mt-1">
@@ -148,7 +146,7 @@ export function Overview({ onViewChange }: OverviewProps) {
       {/* Chart + status */}
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2 p-5">
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-5">
             <span className="text-sm font-semibold text-main">
               {pick('المحادثات — آخر 7 أيام', 'Conversations — last 7 days')}
             </span>
@@ -271,7 +269,7 @@ export function Overview({ onViewChange }: OverviewProps) {
                   <div className="text-sm font-medium text-main truncate">
                     {pick(conv.customerName, conv.customerNameEn ?? conv.customerName)}
                   </div>
-                  <div className="text-xs text-muted truncate">{conv.preview}</div>
+                  <div className="text-xs text-muted truncate" dir="auto">{conv.preview}</div>
                 </div>
                 <div className="shrink-0">
                   {conv.status === 'ai' && <Badge variant="ai" size="xs">AI</Badge>}
@@ -286,7 +284,7 @@ export function Overview({ onViewChange }: OverviewProps) {
 
       {/* Lead qualification demo */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between gap-3 mb-3">
           <div>
             <h3 className="text-sm font-semibold text-main">{pick('تأهيل العملاء بالـ AI', 'AI lead qualification')}</h3>
             <p className="text-xs text-muted mt-0.5">
