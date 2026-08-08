@@ -1,7 +1,9 @@
 import { useReveal, useCountUp } from '@/lib/hooks';
+import { useLang } from '@/lib/i18n';
 import { analyticsData } from '@/lib/mockData';
 
 export function AnalyticsPreview() {
+  const { pick } = useLang();
   const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.2 });
 
   const conversations = useCountUp(analyticsData.kpis.conversations.value, visible, 1800);
@@ -18,17 +20,17 @@ export function AnalyticsPreview() {
     suffix: string;
     format: (v: number) => string;
   }> = [
-    { value: Math.round(conversations), label: 'Conversations', suffix: '', format: (v) => v.toLocaleString() },
-    { value: Math.round(aiResolution), label: 'AI Resolution', suffix: '%', format: (v) => `${v}` },
-    { value: Math.round(leads), label: 'Leads', suffix: '', format: (v) => `${v}` },
-    { value: responseTime, label: 'Avg Response', suffix: 's', format: (v) => v.toFixed(1) },
+    { value: Math.round(conversations), label: pick('محادثة', 'Conversations'), suffix: '', format: v => v.toLocaleString('en-US') },
+    { value: Math.round(aiResolution), label: pick('حلها الـ AI', 'Resolved by AI'), suffix: '%', format: v => `${v}` },
+    { value: Math.round(leads), label: pick('عميل محتمل', 'Leads'), suffix: '', format: v => `${v}` },
+    { value: responseTime, label: pick('متوسط الرد', 'Avg response'), suffix: pick('ث', 's'), format: v => v.toFixed(1) },
   ];
 
   const maxVal = Math.max(...analyticsData.daily.map(d => d.ai + d.human));
 
   return (
     <div ref={ref} className="w-full max-w-2xl mx-auto">
-      <div className="bg-app border border-app rounded-2xl shadow-xl p-6 space-y-5">
+      <div className="bg-app border border-app rounded-2xl shadow-medium p-5 sm:p-6 space-y-5">
         {/* KPIs */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {kpis.map((kpi, i) => (
@@ -41,7 +43,7 @@ export function AnalyticsPreview() {
                 transitionDelay: `${i * 120}ms`,
               }}
             >
-              <div className="text-2xl font-bold text-main count-up tabular-nums">
+              <div className="text-2xl font-bold text-main num">
                 {kpi.format(kpi.value)}{kpi.suffix}
               </div>
               <div className="text-xs text-muted mt-0.5">{kpi.label}</div>
@@ -50,17 +52,17 @@ export function AnalyticsPreview() {
         </div>
 
         {/* Chart */}
-        <div className="bg-subtle border border-app rounded-xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-main">Conversations</span>
-            <div className="flex items-center gap-3 text-xs">
+        <div className="bg-subtle border border-app rounded-xl p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-4 gap-3">
+            <span className="text-sm font-medium text-main">{pick('المحادثات', 'Conversations')}</span>
+            <div className="flex items-center gap-3 text-xs shrink-0">
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-brand-500" />
                 <span className="text-muted">AI</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-accent-400" />
-                <span className="text-muted">Human</span>
+                <span className="text-muted">{pick('موظف', 'Human')}</span>
               </span>
             </div>
           </div>
@@ -69,24 +71,24 @@ export function AnalyticsPreview() {
               const aiHeight = (d.ai / maxVal) * 100;
               const humanHeight = (d.human / maxVal) * 100;
               return (
-                <div key={d.day} className="flex-1 flex flex-col items-center gap-1.5">
+                <div key={d.dayEn ?? d.day} className="flex-1 flex flex-col items-center gap-1.5">
                   <div className="w-full flex items-end justify-center gap-0.5 h-full">
                     <div
-                      className="w-3 rounded-t bg-brand-500 origin-bottom transition-all duration-700 ease-smooth"
+                      className="w-3 rounded-t bg-brand-500 transition-all duration-700 ease-smooth"
                       style={{
                         height: visible ? `${aiHeight}%` : '0%',
                         transitionDelay: `${i * 80 + 300}ms`,
                       }}
                     />
                     <div
-                      className="w-3 rounded-t bg-accent-400 origin-bottom transition-all duration-700 ease-smooth"
+                      className="w-3 rounded-t bg-accent-400 transition-all duration-700 ease-smooth"
                       style={{
                         height: visible ? `${humanHeight}%` : '0%',
                         transitionDelay: `${i * 80 + 450}ms`,
                       }}
                     />
                   </div>
-                  <span className="text-[10px] text-subtle">{d.day}</span>
+                  <span className="text-[10px] text-subtle">{pick(d.day, d.dayEn ?? d.day)}</span>
                 </div>
               );
             })}
