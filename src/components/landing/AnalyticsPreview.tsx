@@ -1,21 +1,27 @@
-import { useEffect, useState } from 'react';
-import { useReveal, useCountUp, usePrefersReducedMotion } from '@/lib/hooks';
+import { useReveal, useCountUp } from '@/lib/hooks';
 import { analyticsData } from '@/lib/mockData';
 
 export function AnalyticsPreview() {
   const { ref, visible } = useReveal<HTMLDivElement>({ threshold: 0.2 });
-  const reduced = usePrefersReducedMotion();
 
   const conversations = useCountUp(analyticsData.kpis.conversations.value, visible, 1800);
   const aiResolution = useCountUp(analyticsData.kpis.aiResolution.value, visible, 1500);
   const leads = useCountUp(analyticsData.kpis.leads.value, visible, 1400);
   const responseTime = useCountUp(analyticsData.kpis.responseTime.value, visible, 1200);
 
-  const kpis = [
-    { value: Math.round(conversations), label: 'Conversations', suffix: '', format: (v: number) => v.toLocaleString() },
-    { value: Math.round(aiResolution), label: 'AI Resolution', suffix: '%', format: (v: number) => `${v}` },
-    { value: Math.round(leads), label: 'Leads', suffix: '', format: (v: number) => `${v}` },
-    { value: responseTime.toFixed(1), label: 'Avg Response', suffix: 's', format: (v: number) => v.toFixed(1) },
+  // `value` must stay a number — `format` is the only thing that turns it into
+  // a string. Storing an already-formatted string here previously caused
+  // `v.toFixed is not a function` and crashed the whole landing page.
+  const kpis: Array<{
+    value: number;
+    label: string;
+    suffix: string;
+    format: (v: number) => string;
+  }> = [
+    { value: Math.round(conversations), label: 'Conversations', suffix: '', format: (v) => v.toLocaleString() },
+    { value: Math.round(aiResolution), label: 'AI Resolution', suffix: '%', format: (v) => `${v}` },
+    { value: Math.round(leads), label: 'Leads', suffix: '', format: (v) => `${v}` },
+    { value: responseTime, label: 'Avg Response', suffix: 's', format: (v) => v.toFixed(1) },
   ];
 
   const maxVal = Math.max(...analyticsData.daily.map(d => d.ai + d.human));
@@ -36,7 +42,7 @@ export function AnalyticsPreview() {
               }}
             >
               <div className="text-2xl font-bold text-main count-up tabular-nums">
-                {kpi.format(kpi.value as any)}{kpi.suffix}
+                {kpi.format(kpi.value)}{kpi.suffix}
               </div>
               <div className="text-xs text-muted mt-0.5">{kpi.label}</div>
             </div>
