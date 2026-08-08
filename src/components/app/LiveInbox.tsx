@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-  Sparkles, User, Search, Filter, MoreVertical, Send,
-  CheckCircle2, Bot, ArrowRight,
+  Sparkles, User, Search, MoreVertical, Send,
+  CheckCircle2, Bot,
 } from 'lucide-react';
 import {
   inboxConversations, incomingConversations, channelMeta,
   type Conversation, type Message,
 } from '@/lib/mockData';
-import { ChannelBadge, Badge, StatusDot, TypingIndicator } from '@/components/ui';
-import { useTypewriter, usePrefersReducedMotion } from '@/lib/hooks';
+import { ChannelBadge, Badge, TypingIndicator } from '@/components/ui';
+import { usePrefersReducedMotion } from '@/lib/hooks';
 
 type ExtendedConversation = Conversation & { justArrived?: boolean; aiTyping?: boolean };
 
@@ -123,7 +123,6 @@ export function LiveInbox() {
         <div className="flex-1 overflow-y-auto">
           {conversations.map(conv => {
             const isSel = conv.id === selectedId;
-            const meta = channelMeta[conv.channel];
             return (
               <div
                 key={conv.id}

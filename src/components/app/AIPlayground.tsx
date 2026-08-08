@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Sparkles, Send, Search, Check, BookOpen, Loader } from 'lucide-react';
+import { Sparkles, Send, Search, Check, BookOpen } from 'lucide-react';
 import { useTypewriter, usePrefersReducedMotion } from '@/lib/hooks';
 import { playgroundExamples } from '@/lib/mockData';
-import { Badge, Card, Button } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 
 type Stage = 'idle' | 'searching' | 'found' | 'answering' | 'done';
 
@@ -61,7 +61,6 @@ export function AIPlayground() {
     setTimeout(() => setStage('answering'), searchDuration + 600);
 
     // Stream answer
-    const answerText = example.answer;
     const fullMsg: PlaygroundMessage = {
       id: msgId.current++, role: 'ai', text: '', arabic: example.arabic,
       source: example.source, confidence: example.confidence,

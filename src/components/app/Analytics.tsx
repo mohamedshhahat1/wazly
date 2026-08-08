@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { TrendingUp, MessageCircle, Bot, Target, Clock, Download } from 'lucide-react';
-import { Card, Badge, Button, ChannelBadge } from '@/components/ui';
+import { Card, Button, ChannelBadge } from '@/components/ui';
 import { useReveal, useCountUp } from '@/lib/hooks';
 import { analyticsData, channelMeta } from '@/lib/mockData';
 
