@@ -31,6 +31,58 @@ export function ChannelBadge({ channel, size = 'sm' }: { channel: ChannelType; s
   );
 }
 
+/**
+ * Editorial section marker. Replaces the icon-in-a-tinted-pill label that
+ * made every band on the page open the same way. A number, a rule and a
+ * word: it sits quietly at the top of a composition instead of announcing
+ * itself.
+ *
+ * The tracking on `text-eyebrow` is neutralised for Arabic by the RTL rule
+ * in index.css, since tracking breaks Arabic letter joining.
+ */
+export function Eyebrow({ index, children }: { index?: string; children: ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 text-eyebrow font-medium uppercase text-muted">
+      {index && <span className="num text-brand">{index}</span>}
+      <span className="h-px w-7 bg-ink-300 dark:bg-ink-700" aria-hidden="true" />
+      <span>{children}</span>
+    </div>
+  );
+}
+
+/**
+ * Initial-letter avatar. `tone` carries meaning: brand for the assistant,
+ * ink for a human teammate, muted for a customer.
+ */
+export function Avatar({
+  initial,
+  tone = 'muted',
+  size = 'md',
+}: {
+  initial: string;
+  tone?: 'brand' | 'ink' | 'muted';
+  size?: 'sm' | 'md' | 'lg';
+}) {
+  const tones: Record<string, string> = {
+    brand: 'bg-brand-600 text-white dark:bg-brand-500 dark:text-brand-950',
+    ink: 'bg-ink-900 text-white dark:bg-ink-100 dark:text-ink-900',
+    muted: 'bg-muted text-muted border border-app',
+  };
+  const sizes: Record<string, string> = {
+    sm: 'w-6 h-6 text-[10px]',
+    md: 'w-8 h-8 text-xs',
+    lg: 'w-11 h-11 text-sm',
+  };
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded-full font-medium ${tones[tone]} ${sizes[size]}`}
+      aria-hidden="true"
+    >
+      {initial}
+    </span>
+  );
+}
+
 export function StatusDot({
   status,
   label,
@@ -38,10 +90,12 @@ export function StatusDot({
   status: 'operational' | 'connected' | 'ready' | 'warning' | 'error';
   label?: string;
 }) {
+  // Teal is the product's status colour. `connected` used to be green, which
+  // was the only green in the product and read as an oversight.
   const colors: Record<string, string> = {
-    operational: 'bg-brand-500',
-    connected: 'bg-green-500',
-    ready: 'bg-brand-500',
+    operational: 'bg-brand-600 dark:bg-brand-400',
+    connected: 'bg-brand-600 dark:bg-brand-400',
+    ready: 'bg-brand-600 dark:bg-brand-400',
     warning: 'bg-amber-500',
     error: 'bg-red-500',
   };
@@ -75,12 +129,16 @@ export function Badge({
 }) {
   const variants: Record<string, string> = {
     neutral: 'bg-muted text-muted border border-app',
-    brand: 'bg-brand-bg text-brand border border-brand-200/30',
-    success: 'bg-green-50 text-green-700 border border-green-200 dark:bg-green-950/30 dark:text-green-400 dark:border-green-900/50',
+    brand: 'bg-brand-bg text-brand border border-brand-600/15',
+    // Success is teal, not green: the product has one positive colour.
+    success: 'bg-brand-bg text-brand border border-brand-600/15',
     warning: 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-900/50',
     error: 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/50',
-    ai: 'bg-brand-bg text-brand border border-brand-200/30',
-    human: 'bg-accent-50 text-accent-600 border border-accent-200 dark:bg-accent-950/30 dark:text-accent-400 dark:border-accent-900/50',
+    ai: 'bg-brand-bg text-brand border border-brand-600/15',
+    // Deliberately the strongest chip in the system. When a conversation moves
+    // from the assistant to a person, that transition should be the most
+    // legible state change on the page — teal to ink does that without copy.
+    human: 'bg-ink-900 text-white border border-ink-900 dark:bg-ink-100 dark:text-ink-900 dark:border-ink-100',
   };
   const sizes: Record<string, string> = {
     xs: 'text-[10px] px-1.5 py-0.5 rounded',
@@ -107,8 +165,10 @@ export function Card({
   return (
     <div
       onClick={onClick}
-      className={`bg-app border border-app rounded-xl ${
-        hover ? 'transition-all duration-200 ease-smooth hover:border-strong cursor-pointer' : ''
+      className={`bg-elevated border border-app rounded-xl ${
+        hover
+          ? 'transition-all duration-200 ease-smooth hover:border-strong hover:shadow-soft hover:-translate-y-px cursor-pointer'
+          : ''
       } ${className}`}
     >
       {children}
@@ -127,7 +187,7 @@ export function Button({
   type = 'button',
 }: {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'inverted';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   onClick?: () => void;
@@ -136,10 +196,12 @@ export function Button({
   type?: 'button' | 'submit';
 }) {
   const variants: Record<string, string> = {
-    primary: 'bg-brand-600 hover:bg-brand-700 text-white dark:bg-brand-500 dark:hover:bg-brand-400 dark:text-brand-950',
-    secondary: 'bg-muted hover:bg-border text-main border border-app',
+    primary: 'bg-brand-600 hover:bg-brand-700 text-white hover:shadow-soft dark:bg-brand-500 dark:hover:bg-brand-400 dark:text-brand-950',
+    secondary: 'bg-elevated hover:bg-subtle text-main border border-app hover:border-strong',
     ghost: 'hover:bg-muted text-muted hover:text-main',
-    outline: 'border border-app hover:border-strong text-main hover:bg-subtle',
+    outline: 'border border-app hover:border-strong text-main hover:bg-elevated',
+    // For the dark closing band, where a teal fill would fight the surface.
+    inverted: 'bg-white text-deep-700 hover:bg-ink-100',
   };
   const sizes: Record<string, string> = {
     sm: 'text-xs px-3 py-1.5 rounded-lg gap-1.5',
@@ -151,7 +213,7 @@ export function Button({
       type={type}
       onClick={onClick}
       disabled={disabled || loading}
-      className={`inline-flex items-center justify-center font-medium whitespace-nowrap transition-all duration-200 ease-smooth active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-ring ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center font-medium whitespace-nowrap transition-all duration-200 ease-smooth hover:-translate-y-px active:translate-y-0 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none focus-ring ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {loading && <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />}
       {children}
@@ -164,9 +226,9 @@ export function Tooltip({ children, content }: { children: ReactNode; content: s
     <span className="relative group inline-flex">
       {children}
       {/* Centred with a transform, so it stays correct in both directions */}
-      <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 text-xs bg-ink-900 text-white rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-150 z-50 shadow-large dark:bg-ink-700">
+      <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 text-xs bg-ink-900 text-white rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 delay-150 z-50 shadow-large dark:bg-ink-800">
         {content}
-        <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink-900 dark:border-t-ink-700" />
+        <span className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-ink-900 dark:border-t-ink-800" />
       </span>
     </span>
   );
@@ -187,15 +249,16 @@ export function ProgressBar({
 }) {
   const pct = Math.min((value / max) * 100, 100);
   const colors: Record<string, string> = {
-    brand: 'bg-brand-500',
-    green: 'bg-green-500',
+    brand: 'bg-brand-600 dark:bg-brand-500',
+    // Kept in the union for existing callers; resolves to the same teal.
+    green: 'bg-brand-600 dark:bg-brand-500',
     amber: 'bg-amber-500',
     red: 'bg-red-500',
   };
   // The inner block starts from the inline start, so this fills right-to-left
   // in Arabic without any extra handling.
   return (
-    <div className={`h-2 rounded-full bg-muted overflow-hidden ${className}`}>
+    <div className={`h-1.5 rounded-full bg-muted overflow-hidden ${className}`}>
       <div
         className={`h-full rounded-full ${colors[color]} ${animated ? 'transition-all duration-700 ease-smooth' : ''}`}
         style={{ width: `${pct}%` }}
