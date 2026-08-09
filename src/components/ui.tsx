@@ -1,33 +1,83 @@
 import type { ReactNode } from 'react';
-import { MessageCircle, Instagram, Send, MessageSquare } from 'lucide-react';
 import type { ChannelType } from '@/lib/mockData';
 import { useLang } from '@/lib/i18n';
+import {
+  ChannelGlyph,
+  brandColor,
+  brandLabel,
+  channelBrand,
+} from '@/components/BrandIcons';
 
-export function ChannelIcon({ channel, className = '' }: { channel: ChannelType; className?: string }) {
-  switch (channel) {
-    case 'whatsapp':
-      return <MessageCircle className={className} />;
-    case 'instagram':
-      return <Instagram className={className} />;
-    case 'messenger':
-      return <Send className={className} />;
-    case 'comments':
-      return <MessageSquare className={className} />;
-    default:
-      return <MessageCircle className={className} />;
-  }
+/**
+ * The real brand mark for a channel. Previously these were lucide stand-ins
+ * (MessageCircle for WhatsApp, Send for Messenger), which read as generic.
+ */
+export function ChannelIcon({
+  channel,
+  className = 'w-4 h-4',
+}: {
+  channel: ChannelType;
+  className?: string;
+}) {
+  return <ChannelGlyph channel={channel} className={className} />;
 }
 
-export function ChannelBadge({ channel, size = 'sm' }: { channel: ChannelType; size?: 'sm' | 'md' }) {
-  const sizes = { sm: 'w-5 h-5', md: 'w-7 h-7' };
-  const iconSizes = { sm: 'w-3 h-3', md: 'w-4 h-4' };
+/**
+ * A channel mark on a disc.
+ *
+ * `tone='brand'` is the dense form: brand-coloured disc, white mark. Right when
+ * the badge is small and sits beside a name.
+ * `tone='plain'` is the neutral form: an elevated tile with the mark in its own
+ * brand colour. Right when the mark is the subject rather than an annotation —
+ * colour stays sparing because the surface around it does not shout.
+ *
+ * `pulse` adds a brand-coloured ring for a channel that is actively receiving.
+ */
+export function ChannelBadge({
+  channel,
+  size = 'sm',
+  tone = 'brand',
+  pulse = false,
+}: {
+  channel: ChannelType;
+  size?: 'sm' | 'md' | 'lg';
+  tone?: 'brand' | 'plain';
+  pulse?: boolean;
+}) {
+  const sizes: Record<string, string> = { sm: 'w-5 h-5', md: 'w-7 h-7', lg: 'w-11 h-11' };
+  const iconSizes: Record<string, string> = { sm: 'w-3 h-3', md: 'w-4 h-4', lg: 'w-5 h-5' };
+  const minWidths: Record<string, number> = { sm: 20, md: 28, lg: 44 };
+
+  const brand = channelBrand[channel];
+  const color = brandColor[brand];
+
   return (
-    <div
-      className={`${sizes[size]} rounded-full flex items-center justify-center text-white channel-${channel}`}
-      style={{ minWidth: size === 'sm' ? 20 : 28 }}
+    <span
+      className="relative inline-flex shrink-0"
+      role="img"
+      aria-label={brandLabel[brand]}
     >
-      <ChannelIcon channel={channel} className={iconSizes[size]} />
-    </div>
+      {pulse && (
+        <span
+          className="absolute inset-0 rounded-full animate-ping"
+          style={{ backgroundColor: color, opacity: 0.3, animationDuration: '2.4s' }}
+          aria-hidden="true"
+        />
+      )}
+      <span
+        className={`relative ${sizes[size]} rounded-full flex items-center justify-center ${
+          tone === 'brand'
+            ? `text-white channel-${channel}`
+            : 'bg-elevated border border-app'
+        }`}
+        style={{
+          minWidth: minWidths[size],
+          ...(tone === 'plain' ? { color } : undefined),
+        }}
+      >
+        <ChannelIcon channel={channel} className={iconSizes[size]} />
+      </span>
+    </span>
   );
 }
 
