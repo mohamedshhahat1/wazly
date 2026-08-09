@@ -2,19 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ *
+ * Tokens
+ *
+ * The page sits on #f7f8f7 and elevated surfaces are pure white. Depth
+ * comes from that one-step tonal difference plus a hairline border,
+ * not from shadows — which is why the shadow scale can stay almost
+ * invisible.
+ *
+ * Neutrals are green-tinted. Against a blue-slate neutral the same teal
+ * reads as a corporate accent bolted onto a template; against these it
+ * reads as one considered family.
+ * ------------------------------------------------------------------ */
+
 :root {
-  --bg: #ffffff;
-  --bg-subtle: #f8fafc;
-  --bg-muted: #f1f5f9;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --text-subtle: #94a3b8;
-  --brand: #0d9488;
-  --brand-light: #14b8a6;
-  --brand-bg: #f0fdfa;
-  --shadow-color: 220 40% 2%;
+  --bg: #f7f8f7;
+  --bg-elevated: #ffffff;
+  --bg-subtle: #eff2f0;
+  --bg-muted: #e4e9e7;
+  --border: #dde4e1;
+  --border-strong: #c6d0cc;
+  --text: #101514;
+  --text-muted: #687572;
+  --text-subtle: #97a29f;
+  --brand: #087f73;
+  --brand-light: #1e8a7d;
+  --brand-bg: #edf6f4;
+  /* Space-separated HSL channels: consumed as hsl(var(--shadow-color) / a). */
+  --shadow-color: 168 52% 6%;
 
   /* Motion tokens. One curve for entrances, one for state changes, so the
      whole site settles with the same character. */
@@ -24,18 +39,22 @@
 }
 
 .dark {
-  --bg: #0b1120;
-  --bg-subtle: #0f172a;
-  --bg-muted: #1e293b;
-  --border: #1e293b;
-  --border-strong: #334155;
-  --text: #f1f5f9;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
-  --brand: #2dd4bf;
-  --brand-light: #14b8a6;
-  --brand-bg: rgba(20, 184, 166, 0.08);
-  --shadow-color: 220 80% 0%;
+  /* Dark mode is the same hue family, not a separate identity: #0b2421 is
+     the specified primary dark, used here as the elevated surface with a
+     deeper tone behind it. */
+  --bg: #0b2421;
+  --bg-elevated: #0e2b27;
+  --bg-subtle: #071a18;
+  --bg-muted: #12332e;
+  --border: #1b3b35;
+  --border-strong: #2a5049;
+  --text: #edf2f0;
+  --text-muted: #94a5a1;
+  --text-subtle: #6b7b77;
+  --brand: #58b3a5;
+  --brand-light: #7bbcb1;
+  --brand-bg: rgba(88, 179, 165, 0.1);
+  --shadow-color: 168 60% 2%;
 }
 
 * {
@@ -64,8 +83,8 @@ body {
 /* ------------------------------------------------------------------ *
  * Arabic typography
  *
- * Arabic is not just translated Latin text. It needs its own rhythm:
- * more room between lines for body copy, less for headings, and no
+ * Arabic is not translated Latin text. It needs its own rhythm: more
+ * room between lines for body copy, less for headings, and no
  * letter-spacing at all — tracking breaks the joins between letters.
  * ------------------------------------------------------------------ */
 
@@ -83,9 +102,28 @@ body {
   line-height: 1.75;
 }
 
-.lang-ar :is(h1, h2, h3, h4, h5, h6) {
+/* `.lang-ar :is(h1..h6)` resolves to specificity 0,1,1, which outranks any
+   Tailwind size or weight utility at 0,1,0. Left unscoped, these two rules
+   silently override every display size and font weight in the app. Both are
+   excluded from elements that state their own. */
+.lang-ar :is(h1, h2, h3, h4, h5, h6):not([class*='text-display']) {
   line-height: 1.45;
-  font-weight: 700;
+}
+
+.lang-ar :is(h1, h2, h3, h4, h5, h6):not([class*='font-']) {
+  font-weight: 600;
+}
+
+/* Arabic descenders and diacritics need more room than the Latin-tuned
+   display leading allows. Specificity 0,2,0 beats the utility. */
+.lang-ar .text-display-1 {
+  line-height: 1.16;
+}
+.lang-ar .text-display-2 {
+  line-height: 1.22;
+}
+.lang-ar .text-display-3 {
+  line-height: 1.3;
 }
 
 /* Latin tracking utilities would break Arabic letter joining. Specificity
@@ -123,7 +161,8 @@ html[dir='rtl'] :is(em, i, .italic) {
   unicode-bidi: isolate;
 }
 
-.num {
+.num,
+.tnum {
   direction: ltr;
   unicode-bidi: isolate;
   font-variant-numeric: tabular-nums;
@@ -144,8 +183,13 @@ html[dir='rtl'] .flip-rtl {
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 ::-webkit-scrollbar-thumb {
   background: var(--border-strong);
   border-radius: 4px;
@@ -154,14 +198,17 @@ html[dir='rtl'] .flip-rtl {
   background: var(--text-subtle);
 }
 
-/* Selection */
 ::selection {
-  background: rgba(20, 184, 166, 0.2);
+  background: rgba(8, 127, 115, 0.18);
   color: var(--text);
 }
 
-/* Utility classes */
+/* ------------------------------------------------------------------ *
+ * Surface and text utilities
+ * ------------------------------------------------------------------ */
+
 .bg-app { background-color: var(--bg); }
+.bg-elevated { background-color: var(--bg-elevated); }
 .bg-subtle { background-color: var(--bg-subtle); }
 .bg-muted { background-color: var(--bg-muted); }
 .text-main { color: var(--text); }
@@ -176,6 +223,36 @@ html[dir='rtl'] .flip-rtl {
 
 /* Hairline divider that reads correctly in both directions */
 .divide-app > * + * { border-color: var(--border); }
+
+/* A single hairline rule. Editorial layouts lean on these instead of
+   wrapping every group in a bordered card. */
+.rule {
+  border: 0;
+  border-top: 1px solid var(--border);
+  height: 0;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accessibility
+ *
+ * `:where()` keeps specificity at zero, so components can still opt out
+ * without fighting the cascade.
+ * ------------------------------------------------------------------ */
+
+:where(a, button, [role='button'], input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.focus-ring {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
 
 /* ------------------------------------------------------------------ *
  * Scroll reveal system
@@ -253,6 +330,26 @@ html[dir='rtl'] .reveal-clip-x { clip-path: inset(0 0 0 55%); }
 }
 .draw-line.is-drawn { stroke-dashoffset: 0; }
 
+/* ------------------------------------------------------------------ *
+ * Horizontal editorial scrollers
+ *
+ * Used by the testimonial rail and the mobile metric strips. The mask is
+ * symmetric, so it needs no RTL variant.
+ * ------------------------------------------------------------------ */
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.edge-fade {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%);
+}
+
 /* Skeleton shimmer */
 .skeleton {
   background: linear-gradient(
@@ -265,34 +362,25 @@ html[dir='rtl'] .reveal-clip-x { clip-path: inset(0 0 0 55%); }
   animation: shimmer 2s linear infinite;
 }
 
-/* Glass effect — deliberately light. Heavy blur reads as decoration. */
+/* Retained for the navigation bar only, where a slightly translucent
+   background over scrolling content is the point. Deliberately far weaker
+   than the previous definition — this is not a surface treatment. */
 .glass {
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
 }
 
 .glass-dark {
-  backdrop-filter: blur(8px) saturate(140%);
-  background: rgba(11, 17, 32, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(11, 36, 33, 0.82);
 }
 
-/* Gradient text — reserved for the wordmark, not for section headings. */
+/* Was a three-stop gradient. Now a flat brand colour: any existing usage
+   degrades to solid rather than reintroducing gradient text. */
 .text-gradient-brand {
-  background: linear-gradient(135deg, #0d9488 0%, #14b8a6 50%, #2dd4bf 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Focus rings */
-.focus-ring {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-}
-.focus-ring:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
+  color: var(--brand);
 }
 
 /* Typing dots */
@@ -309,7 +397,7 @@ html[dir='rtl'] .reveal-clip-x { clip-path: inset(0 0 0 55%); }
 
 @keyframes typingBounce {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-4px); opacity: 1; }
+  30% { transform: translateY(-3px); opacity: 1; }
 }
 
 /* Connection line pulse */
@@ -326,14 +414,6 @@ html[dir='rtl'] .flow-line {
   animation-direction: reverse;
 }
 
-/* Particle travel */
-@keyframes particleTravel {
-  0% { offset-distance: 0%; opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { offset-distance: 100%; opacity: 0; }
-}
-
 /* Count up transition */
 .count-up {
   font-variant-numeric: tabular-nums;
@@ -343,16 +423,16 @@ html[dir='rtl'] .flow-line {
 
 /* Chat bubbles: tail corner follows the document direction */
 .bubble-in {
-  border-start-start-radius: 0.75rem;
-  border-start-end-radius: 0.75rem;
-  border-end-end-radius: 0.75rem;
+  border-start-start-radius: 0.625rem;
+  border-start-end-radius: 0.625rem;
+  border-end-end-radius: 0.625rem;
   border-end-start-radius: 0.125rem;
 }
 
 .bubble-out {
-  border-start-start-radius: 0.75rem;
-  border-start-end-radius: 0.75rem;
-  border-end-start-radius: 0.75rem;
+  border-start-start-radius: 0.625rem;
+  border-start-end-radius: 0.625rem;
+  border-end-start-radius: 0.625rem;
   border-end-end-radius: 0.125rem;
 }
 
@@ -384,26 +464,27 @@ html[dir='rtl'] .flow-line {
   }
 }
 
-/* Grid background pattern */
+/* Background patterns. Faint structure, not decoration. */
 .grid-pattern {
   background-image:
     linear-gradient(to right, var(--border) 1px, transparent 1px),
     linear-gradient(to bottom, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
+  background-size: 64px 64px;
 }
 
 .dot-pattern {
   background-image: radial-gradient(var(--border) 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-size: 28px 28px;
 }
 
 /* Smooth height transitions */
 .expand-height {
-  transition: max-height 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+  transition: max-height 0.4s var(--ease-entrance), opacity 0.3s ease;
   overflow: hidden;
 }
 
-/* Noise texture for hero */
+/* Very light film over large flat areas, so wide neutral fields do not read
+   as flat digital grey. */
 .noise-overlay {
   position: absolute;
   inset: 0;
@@ -412,8 +493,8 @@ html[dir='rtl'] .flow-line {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' /%3E%3C/svg%3E");
 }
 
-/* Channel badge colors */
-.channel-whatsapp { background-color: #25D366; }
+/* Channel colours are the platforms' own brand marks, not our palette. */
+.channel-whatsapp { background-color: #25d366; }
 .channel-instagram { background: linear-gradient(135deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888); }
-.channel-messenger { background-color: #00B2FF; }
-.channel-comments { background-color: #1877F2; }
+.channel-messenger { background-color: #00b2ff; }
+.channel-comments { background-color: #1877f2; }
