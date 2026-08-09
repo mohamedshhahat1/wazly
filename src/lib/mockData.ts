@@ -369,13 +369,14 @@ export const playgroundExamples = [
 // ─── Analytics data ──────────────────────────────────────────
 // Figures are deliberately mid-sized and internally consistent: the channel
 // rows sum to the 3,842 monthly total, percentages sum to 100, and per-channel
-// leads sum to the 214 headline.
+// leads sum to the 337 headline.
 export const analyticsData = {
   kpis: {
     conversations: { value: 3842, label: 'المحادثات', labelEn: 'Conversations', suffix: '' },
     aiResolution: { value: 86, label: 'حلها الـ AI', labelEn: 'Resolved by AI', suffix: '%' },
-    leads: { value: 214, label: 'عملاء محتملين', labelEn: 'Leads', suffix: '' },
-    responseTime: { value: 4.2, label: 'متوسط وقت الرد', labelEn: 'Avg response', suffix: 'ث', decimals: true },
+    leads: { value: 337, label: 'عملاء محتملين', labelEn: 'Leads', suffix: '' },
+    // Minutes, not seconds: a sub-two-second average would read as invented.
+    responseTime: { value: 1.8, label: 'متوسط وقت الرد', labelEn: 'Avg response', suffix: 'د', suffixEn: 'm', decimals: true },
   },
   // The Egyptian working week starts on Saturday and Friday is the quiet day.
   daily: [
@@ -394,10 +395,10 @@ export const analyticsData = {
     { day: 'الأسبوع 4', dayEn: 'W4', ai: 870, human: 64 },
   ],
   channelDistribution: [
-    { channel: 'whatsapp' as ChannelType, conversations: 2612, percentage: 68, aiResolution: 90, leads: 142, conversion: 13.1 },
-    { channel: 'instagram' as ChannelType, conversations: 730, percentage: 19, aiResolution: 83, leads: 44, conversion: 9.4 },
-    { channel: 'messenger' as ChannelType, conversations: 346, percentage: 9, aiResolution: 78, leads: 19, conversion: 6.8 },
-    { channel: 'comments' as ChannelType, conversations: 154, percentage: 4, aiResolution: 71, leads: 9, conversion: 5.2 },
+    { channel: 'whatsapp' as ChannelType, conversations: 2612, percentage: 68, aiResolution: 90, leads: 224, conversion: 13.1 },
+    { channel: 'instagram' as ChannelType, conversations: 730, percentage: 19, aiResolution: 83, leads: 69, conversion: 9.4 },
+    { channel: 'messenger' as ChannelType, conversations: 346, percentage: 9, aiResolution: 78, leads: 30, conversion: 6.8 },
+    { channel: 'comments' as ChannelType, conversations: 154, percentage: 4, aiResolution: 71, leads: 14, conversion: 5.2 },
   ],
 };
 
@@ -423,7 +424,7 @@ export const pricingPlans = [
     conversations: 5000,
     features: ['5,000 محادثة بالـ AI', '4 قنوات', 'تحويل لموظف', 'تحليلات متقدمة', 'تأهيل العملاء', 'دعم ذو أولوية'],
     featuresEn: ['5,000 AI conversations', '4 channels', 'Human handoff', 'Advanced analytics', 'Lead qualification', 'Priority support'],
-    highlighted: true,
+    highlighted: false,
   },
   {
     name: 'الأعمال',
@@ -431,10 +432,11 @@ export const pricingPlans = [
     price: 1999,
     period: 'ج.م/شهر',
     periodEn: 'EGP/mo',
-    conversations: 15000,
-    features: ['15,000 محادثة بالـ AI', 'كل القنوات', 'عمل جماعي للفريق', 'مصادر معرفة مخصصة', 'وصول للـ API', 'مدير حساب مخصص'],
-    featuresEn: ['15,000 AI conversations', 'All channels', 'Team collaboration', 'Custom knowledge sources', 'API access', 'Dedicated manager'],
-    highlighted: false,
+    conversations: 20000,
+    features: ['20,000 محادثة بالـ AI', 'كل القنوات', 'عمل جماعي للفريق', 'مصادر معرفة مخصصة', 'وصول للـ API', 'مدير حساب مخصص'],
+    featuresEn: ['20,000 AI conversations', 'All channels', 'Team collaboration', 'Custom knowledge sources', 'API access', 'Dedicated manager'],
+    // The recommended plan, matching the pricing selector on the landing page.
+    highlighted: true,
   },
   {
     name: 'المؤسسات',
