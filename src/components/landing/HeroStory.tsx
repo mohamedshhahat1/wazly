@@ -45,15 +45,15 @@ const BEATS: Beat[] = [
     id: 's1',
     at: 0.44,
     kind: 'source',
-    ar: 'تم العزور على معلومات من قاعدة معرفة الشركة',
+    ar: 'تم العثور على معلومات من قاعدة معرفة الشركة',
     en: 'Found information in your company knowledge base',
   },
   {
     id: 'a1',
     at: 0.55,
     kind: 'ai',
-    ar: 'أهلاً بحضرتك إوأكيد، عندنا باقات تشطيب مختلفة حسب مساحة المشروع...',
-    en: 'Hello إوOf course — we have finishing packages that vary by project size…',
+    ar: 'أهلاً بحضرتك 👋 أكيد، عندنا باقات تشطيب مختلفة حسب مساحة المشروع...',
+    en: 'Hello 👋 Of course — we have finishing packages that vary by project size…',
   },
   { id: 'k1', at: 0.64, kind: 'ok', ar: 'تم الرد بنجاح', en: 'Replied successfully' },
   {
@@ -115,11 +115,7 @@ export function HeroStory({ onLaunchApp }: HeroStoryProps) {
   const activeNode = NODES.reduce((acc, node, index) => (p >= node.at ? index : acc), 0);
 
   return (
-    <section
-      id="home"
-      ref={ref}
-      className={reduced ? 'pt-28 pb-20' : 'h-[380vh] sm:h-[520vh]'}
-    >
+    <section id="home" ref={ref} className={reduced ? 'pt-28 pb-20' : 'h-[380vh] sm:h-[520vh]'}>
       <div
         className={
           reduced
@@ -189,9 +185,7 @@ export function HeroStory({ onLaunchApp }: HeroStoryProps) {
                         <span
                           aria-hidden="true"
                           className="h-px w-6 transition-colors duration-400"
-                          style={{
-                            backgroundColor: on ? 'var(--brand)' : 'var(--border)',
-                          }}
+                          style={{ backgroundColor: on ? 'var(--brand)' : 'var(--border)' }}
                         />
                       )}
                       <span
@@ -268,10 +262,7 @@ export function HeroStory({ onLaunchApp }: HeroStoryProps) {
                   {BEATS.map(beat => {
                     const local = beatProgress(beat.at);
                     if (local <= 0) return null;
-                    const e = easeOut(local);
-                    return (
-                      <BeatRow key={beat.id} beat={beat} e={e} sign={sign} pick={pick} />
-                    );
+                    return <BeatRow key={beat.id} beat={beat} e={easeOut(local)} sign={sign} pick={pick} />;
                   })}
                 </div>
 
@@ -316,8 +307,6 @@ function BeatRow({
 
   // Machine states: quiet single lines that slide in from the logical start.
   if (beat.kind === 'thinking' || beat.kind === 'source' || beat.kind === 'ok' || beat.kind === 'handoff') {
-    const isSource = beat.kind === 'source';
-    const isHandoff = beat.kind === 'handoff';
     return (
       <div
         className="flex items-center gap-2 py-0.5"
@@ -327,18 +316,21 @@ function BeatRow({
         }}
       >
         {beat.kind === 'thinking' && (
-          <span className="flex gap-1 text-brand">
-            <span className="typing-dot" />
-            <span className="typing-dot" />
-            <span className="typing-dot" />
-          </span>
+          <>
+            <span className="flex gap-1 text-brand">
+              <span className="typing-dot" />
+              <span className="typing-dot" />
+              <span className="typing-dot" />
+            </span>
+            <span className="text-[11px] text-muted">{text}</span>
+          </>
         )}
-        {isSource && (
+        {beat.kind === 'source' && (
           <span
             className="inline-flex items-center gap-1.5 rounded-md border border-app bg-subtle px-2 py-1"
             style={{
-              // Scales out of a blur rather than sliding: retrieval should
-              // read as something resolving, not arriving.
+              // Scales out of a blur rather than sliding: retrieval should read
+              // as something resolving, not arriving.
               transform: `scale(${round(0.92 + e * 0.08, 3)})`,
               filter: e < 0.98 ? `blur(${round((1 - e) * 3.5, 2)}px)` : undefined,
             }}
@@ -353,13 +345,12 @@ function BeatRow({
             {text}
           </span>
         )}
-        {isHandoff && (
+        {beat.kind === 'handoff' && (
           <span className="inline-flex items-center gap-2 text-[11px] text-muted">
             <span aria-hidden="true" className="h-px w-4 bg-ink-300 dark:bg-ink-700" />
             {text}
           </span>
         )}
-        {beat.kind === 'thinking' && <span className="text-[11px] text-muted">{text}</span>}
       </div>
     );
   }
