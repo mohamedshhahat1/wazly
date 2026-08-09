@@ -35,15 +35,14 @@ export function HandoffAnimation() {
   const step = Math.min(lines.length - 1, Math.floor(p * (lines.length + 1)) - 1);
 
   // Derived from which line *types* have played. Matching on copy would break
-  // the moment that copy gets translated.
+  // the moment that copy gets translated. `assigned` flips on the second status
+  // line, which is the beat before the operator speaks.
   let aiActive = false;
   let assigned = false;
-  let operatorActive = false;
   let seen = 0;
   for (let i = 0; i <= step; i++) {
     const type = lines[i].type;
     if (type === 'ai') aiActive = true;
-    if (type === 'operator') operatorActive = true;
     if (type === 'status') {
       seen += 1;
       if (seen > 1) assigned = true;
