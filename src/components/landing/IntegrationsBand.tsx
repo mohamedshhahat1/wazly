@@ -1,11 +1,12 @@
 import { useLang } from '@/lib/i18n';
 import { useScrollProgress, usePrefersReducedMotion } from '@/lib/hooks';
-import { clamp01, mapRange, round } from '@/lib/motion';
+import { clamp01, easeOut, mapRange, round } from '@/lib/motion';
 import { ChannelBadge, Eyebrow, StatusDot } from '@/components/ui';
+import { BrandGlyph, brandColor, integrationBrand } from '@/components/BrandIcons';
 import { integrations } from '@/lib/mockData';
 
 export function IntegrationsBand() {
-  const { pick } = useLang();
+  const { pick, isRTL } = useLang();
   const reduced = usePrefersReducedMotion();
   const { ref, progress } = useScrollProgress<HTMLDivElement>({
     mode: 'through',
@@ -13,6 +14,7 @@ export function IntegrationsBand() {
   });
 
   const p = reduced ? 1 : progress;
+  const sign = isRTL ? -1 : 1;
 
   return (
     <section id="integrations" ref={ref} className="py-section-sm sm:py-section">
@@ -31,16 +33,39 @@ export function IntegrationsBand() {
             </p>
           </div>
 
-          {/* Rows on hairlines. Connection state resolves per row as the
-              section passes — the state is the only motion here. */}
+          {/* Rows on hairlines. Each one enters from the logical start, then
+              resolves its connection state as the section passes. */}
           <ul className="divide-y divide-app border-y border-app">
             {integrations.map((integration, index) => {
-              const settle = clamp01(mapRange(p, 0.2 + index * 0.05, 0.32 + index * 0.05, 0, 1));
-              const online = integration.connected && settle > 0.6;
+              const enter = easeOut(
+                clamp01(mapRange(p, 0.1 + index * 0.035, 0.24 + index * 0.035, 0, 1))
+              );
+              const settle = clamp01(
+                mapRange(p, 0.24 + index * 0.045, 0.42 + index * 0.045, 0, 1)
+              );
+              const online = integration.connected && settle >= 1;
+              const brandKey = integrationBrand[integration.name];
+
               return (
-                <li key={integration.id} className="flex items-center gap-4 py-3.5">
+                <li
+                  key={integration.id}
+                  className="flex items-center gap-4 py-3.5"
+                  style={{
+                    opacity: round(enter, 3),
+                    transform: `translate3d(${round((1 - enter) * 16 * sign)}px, 0, 0)`,
+                  }}
+                >
                   {integration.channel ? (
                     <ChannelBadge channel={integration.channel} />
+                  ) : brandKey ? (
+                    <span
+                      aria-label={integration.name}
+                      role="img"
+                      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-app bg-elevated"
+                      style={{ color: brandColor[brandKey] }}
+                    >
+                      <BrandGlyph brand={brandKey} className="h-3 w-3" />
+                    </span>
                   ) : (
                     <span
                       aria-hidden="true"
@@ -59,17 +84,35 @@ export function IntegrationsBand() {
                     </div>
                   </div>
 
-                  <div className="shrink-0" style={{ opacity: round(0.35 + settle * 0.65, 3) }}>
+                  <div className="shrink-0">
                     {integration.connected ? (
                       online ? (
                         <StatusDot status="connected" label={pick('متصل', 'Connected')} />
                       ) : (
-                        <span className="text-[11px] text-subtle">
-                          {pick('جاري الربط...', 'Connecting…')}
+                        /* Connecting shown as work in progress rather than as a
+                           word that never changes. */
+                        <span className="flex items-center gap-2">
+                          <span
+                            aria-hidden="true"
+                            className="block h-px w-7 overflow-hidden bg-muted"
+                          >
+                            <span
+                              className="block h-full bg-brand-600 dark:bg-brand-400"
+                              style={{ width: `${round(settle * 100)}%` }}
+                            />
+                          </span>
+                          <span className="text-[11px] text-subtle">
+                            {pick('جاري الربط...', 'Connecting…')}
+                          </span>
                         </span>
                       )
                     ) : (
-                      <span className="text-[11px] text-muted">{pick('متاح', 'Available')}</span>
+                      <span
+                        className="text-[11px] text-muted"
+                        style={{ opacity: round(0.4 + enter * 0.6, 3) }}
+                      >
+                        {pick('متاح', 'Available')}
+                      </span>
                     )}
                   </div>
                 </li>
