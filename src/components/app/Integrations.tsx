@@ -75,8 +75,6 @@ export function Integrations() {
     }, connectionSteps.length * 900 + 800);
   };
 
-  const nameOf = (integ: Integration) => pick(integ.name, integ.nameEn ?? integ.name);
-
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-5xl mx-auto">
       <div>
@@ -94,7 +92,8 @@ export function Integrations() {
               {integ.channel && <ChannelBadge channel={integ.channel} size="md" />}
               <StatusDot status={integ.connected ? 'connected' : 'warning'} />
             </div>
-            <div className="text-sm font-semibold text-main font-latin">{nameOf(integ)}</div>
+            {/* Brand names are never translated, hence font-latin in both languages */}
+            <div className="text-sm font-semibold text-main font-latin">{integ.name}</div>
             <div className="text-xs text-muted mt-0.5">
               {integ.connected ? pick('متوصّل', 'Connected') : pick('مش متوصّل', 'Not connected')}
             </div>
@@ -112,11 +111,11 @@ export function Integrations() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-semibold text-main font-latin">{nameOf(integ)}</span>
+                  <span className="text-sm font-semibold text-main font-latin">{integ.name}</span>
                   {integ.connected && <Badge variant="success" size="xs">{pick('متوصّل', 'Connected')}</Badge>}
                 </div>
                 <p className="text-xs text-muted mt-1 leading-[1.8]">
-                  {pick(integ.description, integ.descriptionEn ?? integ.description)}
+                  {pick(integ.description, integ.descriptionEn)}
                 </p>
                 <div className="mt-3">
                   {integ.connected ? (
@@ -147,7 +146,7 @@ export function Integrations() {
               <div className="flex items-center gap-2 min-w-0">
                 {wizardIntegration.channel && <ChannelBadge channel={wizardIntegration.channel} size="sm" />}
                 <span className="text-sm font-semibold text-main truncate">
-                  {pick(`ربط ${nameOf(wizardIntegration)}`, `Connect ${nameOf(wizardIntegration)}`)}
+                  {pick(`ربط ${wizardIntegration.name}`, `Connect ${wizardIntegration.name}`)}
                 </span>
               </div>
               {!connecting && (
@@ -240,7 +239,7 @@ export function Integrations() {
                     <Button size="md" className="flex-1" onClick={nextStep}>
                       {wizardStep < 3
                         ? pick('يلا نكمل', 'Continue')
-                        : pick(`اربط ${nameOf(wizardIntegration)}`, `Connect ${nameOf(wizardIntegration)}`)}
+                        : pick(`اربط ${wizardIntegration.name}`, `Connect ${wizardIntegration.name}`)}
                     </Button>
                   </div>
                 </>
@@ -292,7 +291,7 @@ export function Integrations() {
                       </div>
                       <div className="min-w-0">
                         <div className="text-sm font-semibold text-green-700 dark:text-green-400">
-                          {pick(`تم ربط ${nameOf(wizardIntegration)}`, `${nameOf(wizardIntegration)} connected`)}
+                          {pick(`تم ربط ${wizardIntegration.name}`, `${wizardIntegration.name} connected`)}
                         </div>
                         <div className="text-xs text-green-600 dark:text-green-500">
                           {pick('الـ AI بقى بيتعامل مع محادثات القناة دي.', 'AI is now handling conversations on this channel.')}
